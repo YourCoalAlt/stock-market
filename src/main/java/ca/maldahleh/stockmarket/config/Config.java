@@ -11,83 +11,81 @@ import java.util.List;
 public class Config {
     private StockMarket stockMarket;
 
-    public boolean npcsEnabled;
-    public boolean commandsDisabled;
-    public boolean disableTradingWhenClosed;
-    public String feesAccount;
-    public String stockAccount;
-    public String stockPurchasingAccount;
-    public boolean blockNonUSDSales;
-    public boolean convertToUSD;
-    public boolean preventSaleOfZeroValue;
-    public boolean abusePrevention;
-    public long abusePreventionSeconds;
-    public boolean pennyStockCheck;
-    public double pennyStockMinimum;
-    public double multiplier;
-    public double brokerFeeFlat;
-    public double brokerFeePercent;
-    public boolean chargeBrokerOnSale;
-    public boolean closeInventoryOnSimple;
+    private boolean npcsEnabled;
+    private boolean commandsDisabled;
+    private boolean disableTradingWhenClosed;
+    private String feesAccount;
+    private String stockAccount;
+    private String stockPurchasingAccount;
+    private boolean blockNonUSDSales;
+    private boolean convertToUSD;
+    private boolean preventSaleOfZeroValue;
+    private boolean abusePrevention;
+    private long abusePreventionSeconds;
+    private boolean pennyStockCheck;
+    private double pennyStockMinimum;
+    private double multiplier;
+    private double brokerFeeFlat;
+    private double brokerFeePercent;
+    private boolean chargeBrokerOnSale;
+    private boolean closeInventoryOnSimple;
 
-    public List<String> translatedHelp = new ArrayList<>();
+    private List<String> translatedHelp = new ArrayList<>();
 
-    public String serverCurrency;
-    public String currencyNotSupported;
-    public String dayNotPassed;
-    public List<String> boughtStock = new ArrayList<>();
-    public List<String> soldStock = new ArrayList<>();
-    public List<String> soldStockList = new ArrayList<>();
-    public String soldStockFooter;
-    public String noPurchaseNonUSD;
-    public String noStockToSell;
-    public String errorOccured;
-    public String invalidPrice;
-    public String improperCompareSyntax;
-    public String purgeTables;
-    public String compareMinimumTwo;
-    public String compareMaximumThree;
-    public String invalidStockMessage;
-    public String invalidSyntax;
-    public String configReloaded;
-    public String noPermission;
-    public String playerRequired;
-    public String notEnoughMoney;
-    public String invalidQuantity;
-    public String invalidForexQuote;
-    public String noStocksTargetPlayer;
-    public String noTransactionsTargetPlayer;
-    public String noTransactionsStockTarget;
-    public String stockPurchaseBroadcast;
-    public String stockSaleBroadcast;
-    public String noHistoricalData;
-    public String noStockPlayers;
-    public String noTradingWhenMarketIsClosed;
-    public String pennyStockNotMet;
+    private String serverCurrency;
+    private String currencyNotSupported;
+    private String dayNotPassed;
+    private List<String> boughtStock = new ArrayList<>();
+    private List<String> soldStock = new ArrayList<>();
+    private List<String> soldStockList = new ArrayList<>();
+    private String soldStockFooter;
+    private String noPurchaseNonUSD;
+    private String noStockToSell;
+    private String errorOccured;
+    private String invalidPrice;
+    private String improperCompareSyntax;
+    private String purgeTables;
+    private String compareMinimumTwo;
+    private String compareMaximumThree;
+    private String invalidStockMessage;
+    private String invalidSyntax;
+    private String configReloaded;
+    private String noPermission;
+    private String playerRequired;
+    private String notEnoughMoney;
+    private String invalidQuantity;
+    private String invalidForexQuote;
+    private String noStocksTargetPlayer;
+    private String noTransactionsTargetPlayer;
+    private String noTransactionsStockTarget;
+    private String noHistoricalData;
+    private String noStockPlayers;
+    private String noTradingWhenMarketIsClosed;
+    private String pennyStockNotMet;
 
-    public String stockCommandDisabled;
-    public String stockBrokerSpawned;
-    public String stockBrokersDisabled;
-    public String stockBrokerRemove;
-    public String stockBrokerRemoved;
-    public String stockBrokerRemovalModeDisabled;
-    public String stockBrokerInvalidArguments;
-    public String stockBrokerBuyStock;
-    public String stockBrokerSellStock;
+    private String stockCommandDisabled;
+    private String stockBrokerSpawned;
+    private String stockBrokersDisabled;
+    private String stockBrokerRemove;
+    private String stockBrokerRemoved;
+    private String stockBrokerRemovalModeDisabled;
+    private String stockBrokerInvalidArguments;
+    private String stockBrokerBuyStock;
+    private String stockBrokerSellStock;
 
-    public String stockMarketBrokerStockLookup;
-    public String stockMarketBrokerForexLookup;
-    public String stockBrokerCompare;
-    public String stockBrokerPortfolio;
-    public String stockBrokerStockHistory;
-    public String stockBrokerTransactionHistory;
+    private String stockMarketBrokerStockLookup;
+    private String stockMarketBrokerForexLookup;
+    private String stockBrokerCompare;
+    private String stockBrokerPortfolio;
+    private String stockBrokerStockHistory;
+    private String stockBrokerTransactionHistory;
 
-    public boolean mysqlEnabled;
-    public String mysqlIP;
-    public int mysqlPort;
-    public String mysqlUsername;
-    public String mysqlPassword;
-    public String mysqlDatabase;
+    private boolean mysqlEnabled;
+    private String mysqlIP;
+    private int mysqlPort;
+    private String mysqlUsername;
+    private String mysqlPassword;
+    private String mysqlDatabase;
 
     public Config(StockMarket stockMarket) {
         this.stockMarket = stockMarket;
@@ -161,8 +159,6 @@ public class Config {
         invalidForexQuote = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.invalid-forex-quote"));
         noStocksTargetPlayer = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stocks-to-list"));
         noTransactionsTargetPlayer = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-transactions-to-list"));
-        stockPurchaseBroadcast = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.stock-purchase-broadcast"));
-        stockSaleBroadcast = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.stock-sale-broadcast"));
         noHistoricalData = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-historical-data"));
         noStockPlayers = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stock-players"));
         noTransactionsStockTarget = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stock-transactions-to-list"));
@@ -194,5 +190,289 @@ public class Config {
         mysqlDatabase = stockMarket.getConfig().getString("database.database");
         mysqlUsername = stockMarket.getConfig().getString("database.username");
         mysqlPassword = stockMarket.getConfig().getString("database.password");
+    }
+
+    public StockMarket getStockMarket() {
+        return stockMarket;
+    }
+
+    public boolean isNpcsEnabled() {
+        return npcsEnabled;
+    }
+
+    public boolean isCommandsDisabled() {
+        return commandsDisabled;
+    }
+
+    public boolean isDisableTradingWhenClosed() {
+        return disableTradingWhenClosed;
+    }
+
+    public String getFeesAccount() {
+        return feesAccount;
+    }
+
+    public String getStockAccount() {
+        return stockAccount;
+    }
+
+    public String getStockPurchasingAccount() {
+        return stockPurchasingAccount;
+    }
+
+    public boolean isBlockNonUSDSales() {
+        return blockNonUSDSales;
+    }
+
+    public boolean isConvertToUSD() {
+        return convertToUSD;
+    }
+
+    public boolean isPreventSaleOfZeroValue() {
+        return preventSaleOfZeroValue;
+    }
+
+    public boolean isAbusePrevention() {
+        return abusePrevention;
+    }
+
+    public long getAbusePreventionSeconds() {
+        return abusePreventionSeconds;
+    }
+
+    public boolean isPennyStockCheck() {
+        return pennyStockCheck;
+    }
+
+    public double getPennyStockMinimum() {
+        return pennyStockMinimum;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public double getBrokerFeeFlat() {
+        return brokerFeeFlat;
+    }
+
+    public double getBrokerFeePercent() {
+        return brokerFeePercent;
+    }
+
+    public boolean isChargeBrokerOnSale() {
+        return chargeBrokerOnSale;
+    }
+
+    public boolean isCloseInventoryOnSimple() {
+        return closeInventoryOnSimple;
+    }
+
+    public List<String> getTranslatedHelp() {
+        return translatedHelp;
+    }
+
+    public String getServerCurrency() {
+        return serverCurrency;
+    }
+
+    public String getCurrencyNotSupported() {
+        return currencyNotSupported;
+    }
+
+    public String getDayNotPassed() {
+        return dayNotPassed;
+    }
+
+    public List<String> getBoughtStock() {
+        return boughtStock;
+    }
+
+    public List<String> getSoldStock() {
+        return soldStock;
+    }
+
+    public List<String> getSoldStockList() {
+        return soldStockList;
+    }
+
+    public String getSoldStockFooter() {
+        return soldStockFooter;
+    }
+
+    public String getNoPurchaseNonUSD() {
+        return noPurchaseNonUSD;
+    }
+
+    public String getNoStockToSell() {
+        return noStockToSell;
+    }
+
+    public String getErrorOccured() {
+        return errorOccured;
+    }
+
+    public String getInvalidPrice() {
+        return invalidPrice;
+    }
+
+    public String getImproperCompareSyntax() {
+        return improperCompareSyntax;
+    }
+
+    public String getPurgeTables() {
+        return purgeTables;
+    }
+
+    public String getCompareMinimumTwo() {
+        return compareMinimumTwo;
+    }
+
+    public String getCompareMaximumThree() {
+        return compareMaximumThree;
+    }
+
+    public String getInvalidStockMessage() {
+        return invalidStockMessage;
+    }
+
+    public String getInvalidSyntax() {
+        return invalidSyntax;
+    }
+
+    public String getConfigReloaded() {
+        return configReloaded;
+    }
+
+    public String getNoPermission() {
+        return noPermission;
+    }
+
+    public String getPlayerRequired() {
+        return playerRequired;
+    }
+
+    public String getNotEnoughMoney() {
+        return notEnoughMoney;
+    }
+
+    public String getInvalidQuantity() {
+        return invalidQuantity;
+    }
+
+    public String getInvalidForexQuote() {
+        return invalidForexQuote;
+    }
+
+    public String getNoStocksTargetPlayer() {
+        return noStocksTargetPlayer;
+    }
+
+    public String getNoTransactionsTargetPlayer() {
+        return noTransactionsTargetPlayer;
+    }
+
+    public String getNoTransactionsStockTarget() {
+        return noTransactionsStockTarget;
+    }
+
+    public String getNoHistoricalData() {
+        return noHistoricalData;
+    }
+
+    public String getNoStockPlayers() {
+        return noStockPlayers;
+    }
+
+    public String getNoTradingWhenMarketIsClosed() {
+        return noTradingWhenMarketIsClosed;
+    }
+
+    public String getPennyStockNotMet() {
+        return pennyStockNotMet;
+    }
+
+    public String getStockCommandDisabled() {
+        return stockCommandDisabled;
+    }
+
+    public String getStockBrokerSpawned() {
+        return stockBrokerSpawned;
+    }
+
+    public String getStockBrokersDisabled() {
+        return stockBrokersDisabled;
+    }
+
+    public String getStockBrokerRemove() {
+        return stockBrokerRemove;
+    }
+
+    public String getStockBrokerRemoved() {
+        return stockBrokerRemoved;
+    }
+
+    public String getStockBrokerRemovalModeDisabled() {
+        return stockBrokerRemovalModeDisabled;
+    }
+
+    public String getStockBrokerInvalidArguments() {
+        return stockBrokerInvalidArguments;
+    }
+
+    public String getStockBrokerBuyStock() {
+        return stockBrokerBuyStock;
+    }
+
+    public String getStockBrokerSellStock() {
+        return stockBrokerSellStock;
+    }
+
+    public String getStockMarketBrokerStockLookup() {
+        return stockMarketBrokerStockLookup;
+    }
+
+    public String getStockMarketBrokerForexLookup() {
+        return stockMarketBrokerForexLookup;
+    }
+
+    public String getStockBrokerCompare() {
+        return stockBrokerCompare;
+    }
+
+    public String getStockBrokerPortfolio() {
+        return stockBrokerPortfolio;
+    }
+
+    public String getStockBrokerStockHistory() {
+        return stockBrokerStockHistory;
+    }
+
+    public String getStockBrokerTransactionHistory() {
+        return stockBrokerTransactionHistory;
+    }
+
+    public boolean isMysqlEnabled() {
+        return mysqlEnabled;
+    }
+
+    public String getMysqlIP() {
+        return mysqlIP;
+    }
+
+    public int getMysqlPort() {
+        return mysqlPort;
+    }
+
+    public String getMysqlUsername() {
+        return mysqlUsername;
+    }
+
+    public String getMysqlPassword() {
+        return mysqlPassword;
+    }
+
+    public String getMysqlDatabase() {
+        return mysqlDatabase;
     }
 }

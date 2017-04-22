@@ -69,8 +69,6 @@ messages:
   no-stock-transactions-to-list: "&cThe specified stock has no transactions, history not generated."
   no-transactions-to-list: "&cThe specified player has no transactions, history not generated."
   no-historical-data: "&cNo historical data found, this is most likely caused by the company not have existing for the past year."
-  stock-purchase-broadcast: "&4Stock Market &8>> &4<player> &chas purchased &4<quantity> &cof &4<symbol> &cfor a value of &4<purchase-value> &cwith applied broker fees of &4<broker-fees> &cfor a grand total of &4<grand-total>&c."
-  stock-sale-broadcast: "&4Stock Market &8>> &4<player> &chas sold &4<quantity> &cof &4<symbol> &cfor a value of &4<purchase-value> &cwith applied broker fees of &4<broker-fees> &cfor a grand total of &4<grand-total> &c(Inital: &4<inital-value> &cNet: &4<net>&c)."
   help:
   - "&cWe run a virtual stock market, for a list of stocks you can buy, visit YahooFinance."
   - "&cStocks are a great way to earn money by investing in virtual stocks in companies you think will be successful on the stock market."

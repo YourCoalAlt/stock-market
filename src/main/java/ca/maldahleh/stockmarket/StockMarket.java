@@ -42,7 +42,7 @@ public class StockMarket extends JavaPlugin {
     public static StockMarketAPI stockMarketAPI;
 
     private static Economy econ;
-    private static MySQL mySQL;
+    private MySQL mySQL;
     private Config config;
 
     @Override
@@ -179,7 +179,7 @@ public class StockMarket extends JavaPlugin {
 
     public Config getLocalConfig () { return config; }
 
-    public static MySQL getMySQL() {
+    public MySQL getMySQL() {
         return mySQL;
     }
 

@@ -6,9 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class Utils {
     public static String[] splitArray (String toSplit) throws NumberFormatException {
@@ -20,13 +18,19 @@ public class Utils {
         return moneyFormat.format(number);
     }
 
-    public static String formatDecimal (float number) {
+    public static String formatDecimal (double number) {
         return String.format(Locale.ENGLISH, "%.2f", number);
     }
 
     public static boolean isNumber (String string) {
         try { Integer.parseInt(string); } catch (NumberFormatException e) { return false; }
         return true;
+    }
+
+    public static Map sortByValue(Map unsortedMap) {
+        Map sortedMap = new TreeMap(new ValueComparator(unsortedMap));
+        sortedMap.putAll(unsortedMap);
+        return sortedMap;
     }
 
     public static void createItem (Material material, Inventory inventoryName, int itemSlot, String displayName, String lore) {

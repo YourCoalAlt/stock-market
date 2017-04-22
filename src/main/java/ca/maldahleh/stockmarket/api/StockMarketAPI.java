@@ -4,99 +4,70 @@ import ca.maldahleh.stockmarket.StockMarket;
 import ca.maldahleh.stockmarket.stocks.StockPlayer;
 import ca.maldahleh.stockmarket.stocks.Stocks;
 import ca.maldahleh.stockmarket.utils.Utils;
-import ca.maldahleh.stockmarket.utils.ValueComparator;
 
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.quotes.fx.FxQuote;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class StockMarketAPI {
-    public ExecutorService executorService = Executors.newCachedThreadPool();
+    private StockMarket stockMarket;
+    private ExecutorService executorService;
 
-    public String getPortfolioValue(final UUID pUUID) {
-        final ArrayList<List<Stocks>> toPopulate = new ArrayList<>();
-        final ArrayList<String[]> symbolList = new ArrayList<>();
-        final String[] portfolioValueFormatted = {"0.00"};
+    public StockMarketAPI(StockMarket stockMarket) {
+        this.stockMarket = stockMarket;
+        this.executorService = Executors.newCachedThreadPool();
+    }
 
+    /**
+     * Returns a formatted string of the portfolio value of the given player with the specified UUID.
+     *
+     * @param pUUID the UUID of the player to be looked up
+     * @param playerStocks the list of player owned stocks if already established
+     * @return a formatted string containing the portfolio value, if not found value will be 0
+     */
+    public String getPortfolioValue(final UUID pUUID, final List<Stocks> playerStocks) {
         Future<String> future = executorService.submit(() -> {
-            toPopulate.add(0, StockMarket.getMySQL().getAllOwnedStocks(pUUID));
-            boolean toContinue = true;
-            if (toPopulate.get(0).isEmpty()) {
-                toContinue = false;
+            List<Stocks> toPopulate;
+            if (pUUID == null) {
+                toPopulate = playerStocks;
+            } else {
+                 toPopulate = stockMarket.getMySQL().getAllOwnedStocks(pUUID);
             }
 
-            if (toContinue) {
+            double portfolioValue = 0;
+            if (!toPopulate.isEmpty()) {
                 List<String> symbolListToInsert = new ArrayList<>();
-                for (Stocks toUse : toPopulate.get(0)) {
+                for (Stocks toUse : toPopulate) {
                     symbolListToInsert.add(toUse.getSymbol().toUpperCase());
                 }
 
-                String[] stockArray = new String[symbolListToInsert.size()];
-                stockArray = symbolListToInsert.toArray(stockArray);
+                Map<String, Stock> stockData = YahooFinance.get((String[]) symbolListToInsert.toArray());
+                if (!(stockData == null || stockData.isEmpty())) {
+                    for (Stocks stock : toPopulate) {
+                        double multipliedValue;
 
-                symbolList.add(0, stockArray);
-                final ArrayList<Map<String, Stock>> stockData = new ArrayList<>();
-                try {
-                    stockData.add(0, YahooFinance.get(symbolList.get(0)));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                        if (stockMarket.getLocalConfig().isConvertToUSD() && !stockData.get(stock.getSymbol()
+                                .toUpperCase()).getCurrency().equalsIgnoreCase("USD")) {
+                            FxQuote forexStock = YahooFinance.getFx(stockData
+                                    .get(stock.getSymbol().toUpperCase()).getCurrency().toUpperCase() + "USD=X");
 
-                if (stockData.get(0) == null || stockData.get(0).isEmpty()) {
-                    toContinue = false;
-                }
-
-                if (toContinue) {
-                    final HashMap<Integer, Double> portfolioPriceMap = new HashMap<>();
-
-                    for (Stocks stock : toPopulate.get(0)) {
-                        double multipliedValue = 0;
-                        boolean converted = false;
-                        if (StockMarket.getInstance().getLocalConfig().convertToUSD) {
-                            if (!stockData.get(0).get(stock.getSymbol().toUpperCase()).getCurrency().equalsIgnoreCase("USD")) {
-                                final FxQuote[] forexStock = new FxQuote[1];
-
-                                try {
-                                    forexStock[0] = YahooFinance.getFx(stockData.get(0).get(stock.getSymbol().toUpperCase()).getCurrency().toUpperCase() + "USD=X");
-                                } catch (IOException ignored) {
-                                }
-
-                                multipliedValue = (stockData.get(0).get(stock.getSymbol().toUpperCase()).getQuote().getPrice().floatValue() * forexStock[0].getPrice().doubleValue());
-
-                                if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                    multipliedValue = multipliedValue * StockMarket.getInstance().getLocalConfig().multiplier;
-                                }
-
-                                converted = true;
-                            }
+                            multipliedValue = stockData.get(stock.getSymbol().toUpperCase()).getQuote()
+                                    .getPrice().floatValue() * forexStock.getPrice().doubleValue() * stockMarket
+                                    .getLocalConfig().getMultiplier();
+                        } else {
+                            multipliedValue = stockData.get(stock.getSymbol().toUpperCase())
+                                    .getQuote().getPrice().doubleValue() * stockMarket.getLocalConfig().getMultiplier();
                         }
 
-                        if (!converted) {
-                            multipliedValue = stockData.get(0).get(stock.getSymbol().toUpperCase()).getQuote().getPrice().doubleValue();
-
-                            if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                multipliedValue = multipliedValue * StockMarket.getInstance().getLocalConfig().multiplier;
-                            }
-                        }
-
-                        portfolioPriceMap.put(stock.getID(), multipliedValue * stock.getQuantity());
+                        portfolioValue = portfolioValue + multipliedValue * stock.getQuantity();
                     }
-
-                    double portfolioValue = 0;
-                    for (Object o : portfolioPriceMap.entrySet()) {
-                        Map.Entry entry = (Map.Entry) o;
-                        portfolioValue += Double.valueOf(entry.getValue().toString());
-                    }
-
-                    portfolioValueFormatted[0] = Utils.formatDecimal((float) portfolioValue);
                 }
             }
 
-            return portfolioValueFormatted[0];
+            return Utils.formatDecimal(portfolioValue);
         });
 
         try {
@@ -108,91 +79,36 @@ public class StockMarketAPI {
         return null;
     }
 
+    /**
+     * Returns the profit margin of the specified player on their portfolio.
+     *
+     * @param pUUID the UUID of the player to lookup
+     * @return a formatted string of the profit margin
+     */
     public String getProfitMargin(final UUID pUUID) {
-        final ArrayList<List<Stocks>> toPopulate = new ArrayList<>();
-        final ArrayList<String[]> symbolList = new ArrayList<>();
-        final String[] profitMarginFormatted = {"0.00"};
+        Future<String> future = executorService.submit(() -> {
+            List<Stocks> toPopulate = stockMarket.getMySQL().getAllOwnedStocks(pUUID);
+            String profitMarginFormatted = "0.00";
 
-        Future<String> future = executorService.submit(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                toPopulate.add(0, StockMarket.getMySQL().getAllOwnedStocks(pUUID));
-                boolean toContinue = true;
-                if (toPopulate.get(0).isEmpty()) {
-                    toContinue = false;
+            if (!toPopulate.isEmpty()) {
+                List<String> symbolListToInsert = new ArrayList<>();
+                for (Stocks toUse : toPopulate) {
+                    symbolListToInsert.add(toUse.getSymbol().toUpperCase());
                 }
 
-                if (toContinue) {
-                    List<String> symbolListToInsert = new ArrayList<>();
-                    for (Stocks toUse : toPopulate.get(0)) {
-                        symbolListToInsert.add(toUse.getSymbol().toUpperCase());
+                Map<String, Stock> stockData = YahooFinance.get((String[]) symbolListToInsert.toArray());
+                if (!(stockData == null || stockData.isEmpty())) {
+                    double purchaseValue = 0;
+                    for (Stocks stock : toPopulate) {
+                        purchaseValue += stock.getTotalPrice();
                     }
 
-                    String[] stockArray = new String[symbolListToInsert.size()];
-                    stockArray = symbolListToInsert.toArray(stockArray);
-
-                    symbolList.add(0, stockArray);
-                    final ArrayList<Map<String, Stock>> stockData = new ArrayList<>();
-                    try {
-                        stockData.add(0, YahooFinance.get(symbolList.get(0)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    if (stockData.get(0) == null || stockData.get(0).isEmpty()) {
-                        toContinue = false;
-                    }
-
-                    if (toContinue) {
-                        final HashMap<Integer, Double> portfolioPriceMap = new HashMap<>();
-                        double purchaseValue = 0;
-
-                        for (Stocks stock : toPopulate.get(0)) {
-                            purchaseValue += stock.getTotalPrice();
-                            double multipliedValue = 0;
-                            boolean converted = false;
-                            if (StockMarket.getInstance().getLocalConfig().convertToUSD) {
-                                if (!stockData.get(0).get(stock.getSymbol().toUpperCase()).getCurrency().equalsIgnoreCase("USD")) {
-                                    final FxQuote[] forexStock = new FxQuote[1];
-
-                                    try {
-                                        forexStock[0] = YahooFinance.getFx(stockData.get(0).get(stock.getSymbol().toUpperCase()).getCurrency().toUpperCase() + "USD=X");
-                                    } catch (IOException ignored) {
-                                    }
-
-                                    multipliedValue = (stockData.get(0).get(stock.getSymbol().toUpperCase()).getQuote().getPrice().floatValue() * forexStock[0].getPrice().doubleValue());
-
-                                    if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                        multipliedValue = multipliedValue * StockMarket.getInstance().getLocalConfig().multiplier;
-                                    }
-
-                                    converted = true;
-                                }
-                            }
-
-                            if (!converted) {
-                                multipliedValue = stockData.get(0).get(stock.getSymbol().toUpperCase()).getQuote().getPrice().doubleValue();
-
-                                if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                    multipliedValue = multipliedValue * StockMarket.getInstance().getLocalConfig().multiplier;
-                                }
-                            }
-
-                            portfolioPriceMap.put(stock.getID(), multipliedValue * stock.getQuantity());
-                        }
-
-                        double portfolioValue = 0;
-                        for (Object o : portfolioPriceMap.entrySet()) {
-                            Map.Entry entry = (Map.Entry) o;
-                            portfolioValue += Double.valueOf(entry.getValue().toString());
-                        }
-
-                        profitMarginFormatted[0] = Utils.formatDecimal((float) (portfolioValue - purchaseValue));
-                    }
+                    profitMarginFormatted = Utils.formatDecimal(
+                            Double.valueOf(getPortfolioValue(null, toPopulate)) - purchaseValue);
                 }
-
-                return profitMarginFormatted[0];
             }
+
+            return profitMarginFormatted;
         });
 
         try {
@@ -204,25 +120,24 @@ public class StockMarketAPI {
         return null;
     }
 
+    /**
+     * Returns a sorted map containing the top portfolio values.
+     *
+     * @return a sorted map containing the top portfolio values, null if none.
+     */
     public Map<UUID, Double> getSortedPortfolioValues() {
         Future<Map<UUID, Double>> future = executorService.submit(() -> {
-            List<StockPlayer> toUse;
-            toUse = StockMarket.getMySQL().getAllStockPlayers();
+            List<StockPlayer> toUse = stockMarket.getMySQL().getAllStockPlayers();
 
-            boolean toContinue = true;
-            if (toUse.isEmpty()) {
-                toContinue = false;
-            }
-
-            Map<UUID, Double> hashMap = new HashMap<>();
             Map<UUID, Double> sortedMap = null;
-            if (toContinue) {
+            if (!toUse.isEmpty()) {
+                Map<UUID, Double> unsortedMap = new HashMap<>();
                 for (StockPlayer stockPlayer : toUse) {
-                    hashMap.put(stockPlayer.getPlayerUUID(),
-                            Double.valueOf(StockMarket.getStockMarketAPI().getPortfolioValue(stockPlayer.getPlayerUUID())));
+                    unsortedMap.put(stockPlayer.getPlayerUUID(), Double
+                            .valueOf(getPortfolioValue(stockPlayer.getPlayerUUID(), null)));
                 }
 
-                sortedMap = sortByValue(hashMap);
+                sortedMap = Utils.sortByValue(unsortedMap);
             }
 
             return sortedMap;
@@ -237,13 +152,14 @@ public class StockMarketAPI {
         return null;
     }
 
-    public List<Stocks> getPlayerOwnedStocks (final UUID pUUID) {
-        Future<List<Stocks>> future = executorService.submit(() -> {
-            List<Stocks> playerOwnedStocks;
-            playerOwnedStocks = StockMarket.getMySQL().getAllOwnedStocks(pUUID);
-
-            return playerOwnedStocks;
-        });
+    /**
+     * Return a list of all the stocks a player owns.
+     *
+     * @param pUUID UUID of the target player
+     * @return a list of stocks owned by the player
+     */
+    public List<Stocks> getPlayerOwnedStocks(final UUID pUUID) {
+        Future<List<Stocks>> future = executorService.submit(() -> stockMarket.getMySQL().getAllOwnedStocks(pUUID));
 
         try {
             return future.get();
@@ -252,11 +168,5 @@ public class StockMarketAPI {
         }
 
         return null;
-    }
-
-    private Map sortByValue (Map unsortedMap) {
-        Map sortedMap = new TreeMap(new ValueComparator(unsortedMap));
-        sortedMap.putAll(unsortedMap);
-        return sortedMap;
     }
 }

@@ -1,6 +1,7 @@
 package ca.maldahleh.stockmarket.inventories;
 
 import ca.maldahleh.stockmarket.StockMarket;
+import ca.maldahleh.stockmarket.inventories.information.ListInventory;
 import ca.maldahleh.stockmarket.inventories.information.TutorialInventory;
 import ca.maldahleh.stockmarket.inventories.portfolio.PortfolioHandler;
 import ca.maldahleh.stockmarket.inventories.stockhistory.StockHistoryHandler;
@@ -17,6 +18,7 @@ public class InventoryManager {
     private PortfolioHandler portfolioHandler;
     private StockHistoryHandler stockHistoryHandler;
 
+    private ListInventory listInventory;
     private TutorialInventory tutorialInventory;
 
     public InventoryManager(StockMarket stockMarket) {
@@ -26,6 +28,7 @@ public class InventoryManager {
         this.portfolioHandler = new PortfolioHandler();
         this.stockHistoryHandler = new StockHistoryHandler();
 
+        this.listInventory = new ListInventory();
         this.tutorialInventory = new TutorialInventory();
     }
 
@@ -39,6 +42,10 @@ public class InventoryManager {
 
     public StockHistoryHandler getStockHistoryHandler() {
         return stockHistoryHandler;
+    }
+
+    public void openListInventory(Player toOpen, boolean delayedOpen) {
+        openInventory(toOpen, delayedOpen, listInventory.getInventory());
     }
 
     public void openTutorialInventory(Player toOpen, boolean delayedOpen) {

@@ -67,52 +67,6 @@ public class SharedUtils {
         }
     }
 
-    public static void displayListInventory(final Player commandSender, boolean delayedOpen) {
-        List<String> stockList = Arrays.asList("Amazon.com, INC.;AMZN", "American Express;AXP", "Apple;AAPL", "AT&T;T", "Boeing;BA", "Chipotle Mexican Grill;CMG", "Coca-Cola;KO", "Costco Wholesale;COST", "Facebook;FB",
-                "FedEx;FDX", "General Motors;GM", "Google;GOOG", "Home Depot;HD", "International Business Machines;IBM", "Kellogg's;K", "Lowe's;LOW", "Mastercard;MA", "McDonald's;MCD",
-                "Microsoft;MSFT", "Netflix;NFLX", "NVIDIA;NVDA", "Starbucks;SBUX", "Verizon Communications;VZ", "Visa;V", "Time Warner Inc.;TWX", "Twitter;TWTR", "Wal-Mart Stores;WMT", "Walt Disney Company;DIS", "Whole Foods Market;WFM", "Yahoo!;YHOO");
-        List<String> airlineList = Arrays.asList("Delta;DAL", "JetBlue;JBLU", "Southwest;LUV", "United;UAL");
-        List<String> automobileList = Arrays.asList("Ford;F", "General Motors;GM", "Honda;HMC", "Tesla;TSLA", "Toyota Motors;TM");
-        List<String> aerospaceAndDefenseList = Arrays.asList("Lockheed Martin;LMT", "Honeywell;HON", "Raytheon;RTN", "Boeing;BA");
-        final Inventory listInventory = Bukkit.createInventory(null, 36, ChatColor.GOLD + "" + ChatColor.BOLD + "Stocks" + ChatColor.GRAY + " - " + ChatColor.GOLD + "List");
-        int loopNumber = 0;
-
-        for (int x = 0; x < 9; x++) {
-            String[] splitString = stockList.get(loopNumber).split(";");
-            Utils.createItem(Material.BOOK, listInventory, x, ChatColor.GRAY + "" + ChatColor.BOLD + splitString[0], ChatColor.GOLD + splitString[1]);
-            loopNumber++;
-        }
-        for (int x = 9; x < 18; x++) {
-            String[] splitString = stockList.get(loopNumber).split(";");
-            Utils.createItem(Material.BOOK, listInventory, x, ChatColor.GRAY + "" + ChatColor.BOLD + splitString[0], ChatColor.GOLD + splitString[1]);
-            loopNumber++;
-        }
-        for (int x = 18; x < 27; x++) {
-            String[] splitString = stockList.get(loopNumber).split(";");
-            Utils.createItem(Material.BOOK, listInventory, x, ChatColor.GRAY + "" + ChatColor.BOLD + splitString[0], ChatColor.GOLD + splitString[1]);
-            loopNumber++;
-        }
-        for (int x = 30; x < 33; x++) {
-            String[] splitString = stockList.get(loopNumber).split(";");
-            Utils.createItem(Material.BOOK, listInventory, x, ChatColor.GRAY + "" + ChatColor.BOLD + splitString[0], ChatColor.GOLD + splitString[1]);
-            loopNumber++;
-        }
-
-        Utils.createItem(Material.ENCHANTED_BOOK, listInventory, 27, ChatColor.GRAY + "" + ChatColor.BOLD + "Thousands more at:", ChatColor.GOLD + "https://finance.yahoo.com/");
-        Utils.createItem(Material.ENCHANTED_BOOK, listInventory, 35, ChatColor.GRAY + "" + ChatColor.BOLD + "Thousands more at:", ChatColor.GOLD + "https://finance.yahoo.com/");
-
-        if (delayedOpen) {
-            Bukkit.getScheduler().runTaskLater(StockMarket.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    commandSender.openInventory(listInventory);
-                }
-            }, 10L);
-        } else {
-            commandSender.openInventory(listInventory);
-        }
-    }
-
     public static void displayCompareInventory(final Player commandSender, final String stockOneCheck, final String stockTwoCheck, final boolean delayedOpen) {
         final Stock[] stockOne = new Stock[1];
         final Stock[] stockTwo = new Stock[1];

@@ -4,7 +4,6 @@ import ca.maldahleh.stockmarket.StockMarket;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-import net.citizensnpcs.api.npc.NPCRegistry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,45 +15,41 @@ import org.bukkit.entity.Player;
 public class StockAdminCommand implements CommandExecutor {
     private StockMarket stockMarket;
 
-    public StockAdminCommand (StockMarket plugin) { stockMarket = plugin; }
+    public StockAdminCommand(StockMarket plugin) {
+        stockMarket = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (commandSender.hasPermission("stockmarket.admin")) {
-            if (strings.length == 1 || strings.length == 2) {
-                if (strings[0].equalsIgnoreCase("broker") && strings.length == 1) {
-                    if (stockMarket.getLocalConfig().npcsEnabled) {
-                        NPCRegistry npcRegistry = CitizensAPI.getNPCRegistry();
-                        NPC npc = npcRegistry.createNPC(EntityType.VILLAGER, ChatColor.GOLD + "" + ChatColor.BOLD + "Stock Broker");
+            if ((strings.length == 1 || strings.length == 2) && commandSender instanceof Player) {
+                Player sender = (Player) commandSender;
+
+                if (stockMarket.getLocalConfig().isNpcsEnabled()) {
+                    if (strings[0].equalsIgnoreCase("broker") && strings.length == 1) {
+                        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.VILLAGER,
+                                ChatColor.GOLD + "" + ChatColor.BOLD + "Stock Broker");
                         npc.setProtected(true);
-                        npc.spawn(((Player) commandSender).getLocation());
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokerSpawned);
+                        npc.spawn(sender.getLocation());
+                        commandSender.sendMessage(stockMarket.getLocalConfig().getStockBrokerSpawned());
                         return true;
-                    } else {
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokersDisabled);
+                    } else if (strings[0].equalsIgnoreCase("broker")
+                            && strings[1].equalsIgnoreCase("remove") && strings.length == 2) {
+                        stockMarket.activeKiller.add(sender.getUniqueId());
+                        commandSender.sendMessage(stockMarket.getLocalConfig().getStockBrokerRemove());
                         return true;
-                    }
-                } else if (strings[0].equalsIgnoreCase("broker") && strings[1].equalsIgnoreCase("remove") && strings.length == 2) {
-                    if (stockMarket.getLocalConfig().npcsEnabled) {
-                        stockMarket.activeKiller.add(((Player) commandSender).getUniqueId());
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokerRemove);
-                        return true;
-                    } else {
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokersDisabled);
-                        return true;
-                    }
-                } else if (strings[0].equalsIgnoreCase("broker") && strings[1].equalsIgnoreCase("simple") && strings.length == 2) {
-                    if (stockMarket.getLocalConfig().npcsEnabled) {
-                        NPCRegistry npcRegistry = CitizensAPI.getNPCRegistry();
-                        NPC npc = npcRegistry.createNPC(EntityType.VILLAGER, ChatColor.GRAY + "" + ChatColor.BOLD + "Stock Broker");
+                    } else if (strings[0].equalsIgnoreCase("broker")
+                            && strings[1].equalsIgnoreCase("simple") && strings.length == 2) {
+                        NPC npc = CitizensAPI.getNPCRegistry().createNPC(EntityType.VILLAGER,
+                                ChatColor.GRAY + "" + ChatColor.BOLD + "Stock Broker");
                         npc.setProtected(true);
-                        npc.spawn(((Player) commandSender).getLocation());
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokerSpawned);
-                        return true;
-                    } else {
-                        commandSender.sendMessage(stockMarket.getLocalConfig().stockBrokersDisabled);
+                        npc.spawn(sender.getLocation());
+                        commandSender.sendMessage(stockMarket.getLocalConfig().getStockBrokerSpawned());
                         return true;
                     }
+                } else {
+                    commandSender.sendMessage(stockMarket.getLocalConfig().getStockBrokersDisabled());
+                    return true;
                 }
             }
 
@@ -62,19 +57,19 @@ public class StockAdminCommand implements CommandExecutor {
                 if (strings[0].equalsIgnoreCase("reload")) {
                     stockMarket.reloadConfig();
                     stockMarket.getLocalConfig().loadConfiguration();
-                    commandSender.sendMessage(stockMarket.getLocalConfig().configReloaded);
+                    commandSender.sendMessage(stockMarket.getLocalConfig().getConfigReloaded());
                     return true;
                 } else if (strings[0].equalsIgnoreCase("tables")) {
-                    StockMarket.getMySQL().wipeTables();
-                    commandSender.sendMessage(stockMarket.getLocalConfig().purgeTables);
+                    stockMarket.getMySQL().wipeTables();
+                    commandSender.sendMessage(stockMarket.getLocalConfig().getPurgeTables());
                     return true;
                 }
             }
 
-            commandSender.sendMessage(stockMarket.getLocalConfig().invalidSyntax);
+            commandSender.sendMessage(stockMarket.getLocalConfig().getInvalidSyntax());
             return true;
         } else {
-            commandSender.sendMessage(stockMarket.getLocalConfig().noPermission);
+            commandSender.sendMessage(stockMarket.getLocalConfig().getNoPermission());
             return true;
         }
     }

@@ -89,6 +89,8 @@ public class Config {
 
     public Config(StockMarket stockMarket) {
         this.stockMarket = stockMarket;
+
+        stockMarket.saveDefaultConfig();
         loadSQLValues();
         loadConfiguration();
     }

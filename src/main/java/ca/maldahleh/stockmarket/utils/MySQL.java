@@ -28,6 +28,9 @@ public class MySQL {
 
     public MySQL(StockMarket stockMarket) {
         this.stockMarket = stockMarket;
+
+        connectDatabase();
+        createTables();
     }
 
     public void connectDatabase() {

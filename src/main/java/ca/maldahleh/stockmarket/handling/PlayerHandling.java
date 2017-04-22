@@ -40,22 +40,19 @@ public class PlayerHandling {
             if (connection != null) {
                 try {
                     connection.close();
-                } catch (SQLException ignored) {
-                }
+                } catch (SQLException ignored) {}
             }
 
             if (preparedStatement != null) {
                 try {
                     preparedStatement.close();
-                } catch (SQLException ignored) {
-                }
+                } catch (SQLException ignored) {}
             }
 
             if (resultSet != null) {
                 try {
                     resultSet.close();
-                } catch (SQLException ignored) {
-                }
+                } catch (SQLException ignored) {}
             }
         }
     }

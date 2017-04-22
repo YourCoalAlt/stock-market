@@ -58,7 +58,6 @@ public class Config {
     private String noStocksTargetPlayer;
     private String noTransactionsTargetPlayer;
     private String noTransactionsStockTarget;
-    private String noHistoricalData;
     private String noStockPlayers;
     private String noTradingWhenMarketIsClosed;
     private String pennyStockNotMet;
@@ -161,7 +160,6 @@ public class Config {
         invalidForexQuote = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.invalid-forex-quote"));
         noStocksTargetPlayer = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stocks-to-list"));
         noTransactionsTargetPlayer = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-transactions-to-list"));
-        noHistoricalData = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-historical-data"));
         noStockPlayers = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stock-players"));
         noTransactionsStockTarget = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-stock-transactions-to-list"));
         noTradingWhenMarketIsClosed = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.no-trading-when-market-is-closed"));
@@ -376,10 +374,6 @@ public class Config {
 
     public String getNoTransactionsStockTarget() {
         return noTransactionsStockTarget;
-    }
-
-    public String getNoHistoricalData() {
-        return noHistoricalData;
     }
 
     public String getNoStockPlayers() {

@@ -1,5 +1,6 @@
 package ca.maldahleh.stockmarket.utils;
 
+import ca.maldahleh.stockmarket.StockMarket;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -9,17 +10,13 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class Utils {
-    public static String[] splitArray (String toSplit) throws NumberFormatException {
-        return toSplit.split(",");
-    }
-
     public static String formatLargeNumber (double number) {
         DecimalFormat moneyFormat = new DecimalFormat("#,###,###,###");
         return moneyFormat.format(number);
     }
 
     public static String formatDecimal (double number) {
-        return String.format(Locale.ENGLISH, "%.2f", number);
+        return StockMarket.getEcon().format(number);
     }
 
     public static boolean isNumber (String string) {

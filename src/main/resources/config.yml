@@ -68,7 +68,6 @@ messages:
   no-stocks-to-list: "&cThe specified player owns no stocks, portfolio not generated."
   no-stock-transactions-to-list: "&cThe specified stock has no transactions, history not generated."
   no-transactions-to-list: "&cThe specified player has no transactions, history not generated."
-  no-historical-data: "&cNo historical data found, this is most likely caused by the company not have existing for the past year."
   help:
   - "&cWe run a virtual stock market, for a list of stocks you can buy, visit YahooFinance."
   - "&cStocks are a great way to earn money by investing in virtual stocks in companies you think will be successful on the stock market."

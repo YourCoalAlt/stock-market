@@ -3,6 +3,7 @@ package ca.maldahleh.stockmarket.inventories;
 import ca.maldahleh.stockmarket.StockMarket;
 import ca.maldahleh.stockmarket.inventories.information.ListInventory;
 import ca.maldahleh.stockmarket.inventories.information.TutorialInventory;
+import ca.maldahleh.stockmarket.inventories.lookup.LookupInventory;
 import ca.maldahleh.stockmarket.inventories.portfolio.PortfolioHandler;
 import ca.maldahleh.stockmarket.inventories.stockhistory.StockHistoryHandler;
 import ca.maldahleh.stockmarket.inventories.transactionhistory.HistoryHandler;
@@ -50,6 +51,10 @@ public class InventoryManager {
 
     public void openTutorialInventory(Player toOpen, boolean delayedOpen) {
         openInventory(toOpen, delayedOpen, tutorialInventory.getInventory());
+    }
+
+    public void openLookupInventory(Player p, String symbol) {
+        new LookupInventory(stockMarket, p, symbol);
     }
 
     private void openInventory(Player toOpen, boolean delayedOpen, Inventory inventory) {

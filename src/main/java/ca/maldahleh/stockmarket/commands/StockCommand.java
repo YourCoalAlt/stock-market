@@ -25,10 +25,11 @@ public class StockCommand implements CommandExecutor {
         if (commandSender instanceof Player) {
             Player p = (Player) commandSender;
 
-            if (!stockMarket.getLocalConfig().commandsDisabled || commandSender.hasPermission("stockmarket.nocommandbypass")) {
+            if (!stockMarket.getLocalConfig().isCommandsDisabled()
+                    || commandSender.hasPermission("stockmarket.nocommandbypass")) {
                 if (commandSender.hasPermission("stockmarket.use")) {
                     if (strings.length == 0) {
-                        for (String toSend : stockMarket.getLocalConfig().translatedHelp) {
+                        for (String toSend : stockMarket.getLocalConfig().getTranslatedHelp()) {
                             commandSender.sendMessage(toSend);
                         }
                         return true;

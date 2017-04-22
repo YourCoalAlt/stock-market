@@ -67,30 +67,6 @@ public class SharedUtils {
         }
     }
 
-    public static void displayTutorialInventory(final Player commandSender, boolean delayedOpen) {
-        final Inventory tutorialInventory = Bukkit.createInventory(null, 9, ChatColor.GOLD + "" + ChatColor.BOLD + "Stocks" + ChatColor.GRAY + " - " + ChatColor.GOLD + "Tutorial");
-        Utils.createItem(Material.BOOK, tutorialInventory, 0, ChatColor.GOLD + "What is the Stock Market and Stocks?", Arrays.asList(ChatColor.GRAY + "- A stock market is a place where", ChatColor.GRAY + "stocks are sold and bought.", ChatColor.GRAY + "- A stock comes in when a company splits", ChatColor.GRAY + "ownership into small pieces,", ChatColor.GRAY + "known as shares,",
-                ChatColor.GRAY + "these shares, also known as stocks,", ChatColor.GRAY + "are sold to the public.", ChatColor.GRAY + "Stocks help a company generate", ChatColor.GRAY + "more money by splitting", ChatColor.GRAY + "ownership over sometimes millions", ChatColor.GRAY + "of shares which are sold for money", ChatColor.GRAY + "in return for small ownership in the company."));
-        Utils.createItem(Material.BOOK, tutorialInventory, 2, ChatColor.GOLD + "Why do people buy stocks?", Arrays.asList(ChatColor.GRAY + "- Shareholders, the people who buy stocks,", ChatColor.GRAY + "want to buy stocks in", ChatColor.GRAY + "hoping that the value of their stock", ChatColor.GRAY + "will go up and they will sell", ChatColor.GRAY + "their shares at a greater", ChatColor.GRAY + "price.",
-                ChatColor.GRAY + "- Shareholders usually have an", ChatColor.GRAY + "interest in a company's", ChatColor.GRAY + "products or services and", ChatColor.GRAY + "it's room for growth."));
-        Utils.createItem(Material.BOOK, tutorialInventory, 4, ChatColor.GOLD + "What is an example company?", Arrays.asList(ChatColor.GRAY + "Are you into the PlayStation or Xbox?", ChatColor.GRAY + "Both products are manufactured by", ChatColor.GRAY + "companies that are listed on the",
-                ChatColor.GRAY + "stock market, PlayStation is created by", ChatColor.GRAY + "Sony (Symbol: SNE),", ChatColor.GRAY + "while Xbox is created by", ChatColor.GRAY + "Microsoft (Symbol: MSFT).", ChatColor.GRAY + "Both are public companies owned by", ChatColor.GRAY + "shareholders, including many more which", ChatColor.GRAY + "you may know such as McDonalds,",
-                ChatColor.GRAY + "and Coca-Cola.", ChatColor.GRAY + "You can look for thousands more", ChatColor.GRAY + "listed on the Stock Market", ChatColor.GRAY + "at: https://finance.yahoo.com"));
-        Utils.createItem(Material.BOOK, tutorialInventory, 6, ChatColor.GOLD + "What is volume?", Arrays.asList(ChatColor.GRAY + "Companies usually split their", ChatColor.GRAY + "ownership into millions of shares,", ChatColor.GRAY + "the number of shares issued is the volume."));
-        Utils.createItem(Material.BOOK, tutorialInventory, 8, ChatColor.GOLD + "How can I learn how to use this plugin?", ChatColor.GRAY + "To learn how to use this plugin, use /stock help");
-
-        if (delayedOpen) {
-            Bukkit.getScheduler().runTaskLater(StockMarket.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    commandSender.openInventory(tutorialInventory);
-                }
-            }, 10L);
-        } else {
-            commandSender.openInventory(tutorialInventory);
-        }
-    }
-
     public static void displayListInventory(final Player commandSender, boolean delayedOpen) {
         List<String> stockList = Arrays.asList("Amazon.com, INC.;AMZN", "American Express;AXP", "Apple;AAPL", "AT&T;T", "Boeing;BA", "Chipotle Mexican Grill;CMG", "Coca-Cola;KO", "Costco Wholesale;COST", "Facebook;FB",
                 "FedEx;FDX", "General Motors;GM", "Google;GOOG", "Home Depot;HD", "International Business Machines;IBM", "Kellogg's;K", "Lowe's;LOW", "Mastercard;MA", "McDonald's;MCD",

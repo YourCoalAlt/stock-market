@@ -1,0 +1,13 @@
+name: StockMarket
+author: maldahleh
+version: 0.1.0
+depend: [Vault]
+softdepend: [Citizens]
+main: ca.maldahleh.stockmarket.StockMarket
+
+commands:
+  stock:
+    description: Base command for the Stock Market plugin.
+    aliases: [stocks, sm, stockmarket]
+  sma:
+    description: Base administrative command for Stock Market plugin.

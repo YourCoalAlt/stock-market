@@ -1,0 +1,89 @@
+config-version: 1
+database:
+  mysql-enabled: true
+  ip: "localhost"
+  port: 3306
+  database: "stockmarket"
+  username: "root"
+  password: "password"
+options:
+  npc-enabled: true
+  commands-disabled: true
+  fees-account: ""
+  stock-account: ""
+  stock-purchasing-account: ""
+  multiplier: 10
+  prevent-non-usd-sale: false
+  convert-non-usd-to-usd: true
+  prevent-sale-of-zero-value: true
+  abuse-prevention: true
+  abuse-prevention-time: 3600
+  penny-stock-check: true
+  penny-stock-minimum: 5
+  charge-broker-on-sale: false
+  broker-fee-flat: 10
+  broker-fee-percent: 0
+  disable-trading-when-closed: false
+  close-inventory-on-simple: false
+messages:
+  server-currency: "Dollars"
+  error-occured: "&4An error occurred, Yahoo Finance may be down."
+  purged-tables: "&4Purged MySQL tables"
+  purchase-currency-not-supported: "&4The stock you are trying to buy has an unsupported original currency."
+  no-purchase-non-USD: "&4You can not purchase stocks which are not of USD currency."
+  no-stock-to-sell: "&4You can not sell <symbol> as you do not own enough of the stock."
+  day-not-passed: "&4You can not sell &c<symbol> &4for another &c<hours> &4hours."
+  invalid-price: "&4<symbol> &ccurrently has an invalid price and can not be bought/sold."
+  not-enough-money: "&4You can not afford <quantity> of <symbol> with a grand total of <total>."
+  no-stock-players: "&4There are no stock players, leaderboard not generated."
+  bought-stock:
+  - "&4Purchase Summary (<date>):"
+  - "&4You purchased &c<quantity> &4of &c<company> (<symbol>)"
+  - "&4Stock Value: &c<stock-value>"
+  - "&4Broker Fees: &c<broker-fees>"
+  - "&4Grand Total: &c<total>"
+  sold-stock:
+  - "&4Sale Summary:"
+  - "&4You sold &c<quantity> &4of &c<company> (<symbol>)"
+  stock-sold-report:
+  - "&4Stock ID: &c<stock-id> &4- Quantity: &c<quantity-of-stock>"
+  - "  &4Stock Value: &c<stock-value> &4- Broker Fees: &c<broker-fees> &4- Total: &c<total>"
+  - "  &4Purchased for: &c<purchase> &4- Net Gain/Loss: &c<net>"
+  stock-sold-footer: "&4Total Net: &c<total-net>"
+  stock-broker-spawned: "&4Spawned stock broker."
+  stock-broker-removal: "&4Hit the stock broker you would like to remove."
+  stock-brokers-disabled: "&4Stock Brokers are disabled in the config, command failed."
+  stock-broker-removed: "&4Stock broker removed."
+  stock-broker-no-npc: "&4You did not hit a stock broker, removal mode disabled."
+  invalid-forex-quote: "&4You specified an invalid Forex quote (Proper example: USDEUR)."
+  invalid-quantity: "&4You specified an invalid quantity."
+  improper-compare-syntax: "&cIncorrect syntax"
+  compare-minimum-two: "&cYou need to compare at least two stocks."
+  compare-maximum-three: "&cYou can only compare three stocks at a time with the compare command."
+  invalid-stock: "&cThat stock could not be found."
+  invalid-syntax: "&cYou did not use the proper command syntax."
+  config-reloaded: "&cSuccessfully reloaded configuration file."
+  no-permission: "&cYou do not have permission to use that command."
+  you-need-to-be-a-player: "Stock Market - You need to be a player to use that command."
+  no-stocks-to-list: "&cThe specified player owns no stocks, portfolio not generated."
+  no-stock-transactions-to-list: "&cThe specified stock has no transactions, history not generated."
+  no-transactions-to-list: "&cThe specified player has no transactions, history not generated."
+  no-historical-data: "&cNo historical data found, this is most likely caused by the company not have existing for the past year."
+  stock-purchase-broadcast: "&4Stock Market &8>> &4<player> &chas purchased &4<quantity> &cof &4<symbol> &cfor a value of &4<purchase-value> &cwith applied broker fees of &4<broker-fees> &cfor a grand total of &4<grand-total>&c."
+  stock-sale-broadcast: "&4Stock Market &8>> &4<player> &chas sold &4<quantity> &cof &4<symbol> &cfor a value of &4<purchase-value> &cwith applied broker fees of &4<broker-fees> &cfor a grand total of &4<grand-total> &c(Inital: &4<inital-value> &cNet: &4<net>&c)."
+  help:
+  - "&cWe run a virtual stock market, for a list of stocks you can buy, visit YahooFinance."
+  - "&cStocks are a great way to earn money by investing in virtual stocks in companies you think will be successful on the stock market."
+  - "&cOur virtual broker will charge you <percent>% in addition to a flat rate of <flat-rate> on each transaction."
+  stock-commands-disabled: "&4Stock Market commands are disabled, make use of our Stock Brokers!"
+  stock-broker-stock-symbol-lookup: "&4Chat disabled. &cEnter the stock symbol you want to lookup in chat (Example: AAPL)."
+  stock-broker-forex-symbol-lookup: "&4Chat disabled. &cEnter the forex symbol you want to lookup in chat (Example: EURUSD)."
+  stock-broker-compare: "&4Chat disabled. &cEnter the symbols you want to compare in chat (Example: AAPL,GOOG,TSCO.L)."
+  stock-broker-portfolio: "&4Chat disabled. &cEnter the player you want to view the portfolio of in chat."
+  stock-broker-stock-history: "&4Chat disabled. &cEnter the symbol you want to view the history of in chat (Example: AAPL)."
+  stock-broker-transaction-history: "&4Chat disabled. &cEnter the player you want to view the transaction history of in chat."
+  stock-broker-buy-stocks: "&4Chat disabled. &cEnter the symbol and the amount you would like to buy of the stock. (Example: AAPL 2)"
+  stock-broker-sell-stocks: "&4Chat disabled. &cEnter the symbol and the amount you would like to sell of the stock. (Example: AAPL 2)"
+  stock-broker-invalid-provided: "&4You provided invalid arguments to the stock broker."
+  no-trading-when-market-is-closed: "&4The stock market corresponding to the symbol you selected is closed, therefore you can not make any transactions with that symbol."
+  penny-stock-minimum-not-met: "&4You can not buy that stock as it's price is too low."

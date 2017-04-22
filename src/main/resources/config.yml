@@ -26,7 +26,6 @@ options:
   disable-trading-when-closed: false
   close-inventory-on-simple: false
 messages:
-  server-currency: "Dollars"
   error-occured: "&4An error occurred, Yahoo Finance may be down."
   purged-tables: "&4Purged MySQL tables"
   purchase-currency-not-supported: "&4The stock you are trying to buy has an unsupported original currency."

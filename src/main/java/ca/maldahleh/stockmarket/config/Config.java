@@ -32,7 +32,6 @@ public class Config {
 
     private List<String> translatedHelp = new ArrayList<>();
 
-    private String serverCurrency;
     private String currencyNotSupported;
     private String dayNotPassed;
     private List<String> boughtStock = new ArrayList<>();
@@ -139,7 +138,6 @@ public class Config {
 
         soldStockFooter = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.stock-sold-footer"));
 
-        serverCurrency = stockMarket.getConfig().getString("messages.server-currency");
         purgeTables = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.purged-tables"));
         dayNotPassed = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.day-not-passed"));
         currencyNotSupported = ChatColor.translateAlternateColorCodes('&', stockMarket.getConfig().getString("messages.purchase-currency-not-supported"));
@@ -270,10 +268,6 @@ public class Config {
 
     public List<String> getTranslatedHelp() {
         return translatedHelp;
-    }
-
-    public String getServerCurrency() {
-        return serverCurrency;
     }
 
     public String getCurrencyNotSupported() {

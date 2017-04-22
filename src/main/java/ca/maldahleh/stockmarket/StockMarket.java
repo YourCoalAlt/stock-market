@@ -4,6 +4,7 @@ import ca.maldahleh.stockmarket.api.StockMarketAPI;
 import ca.maldahleh.stockmarket.commands.StockAdminCommand;
 import ca.maldahleh.stockmarket.commands.StockCommand;
 import ca.maldahleh.stockmarket.config.Config;
+import ca.maldahleh.stockmarket.inventories.InventoryManager;
 import ca.maldahleh.stockmarket.listeners.BrokerListeners;
 import ca.maldahleh.stockmarket.listeners.PlayerListeners;
 import ca.maldahleh.stockmarket.stocks.StockPlayer;
@@ -26,6 +27,8 @@ public class StockMarket extends JavaPlugin {
     public static StockMarket stockMarket;
     public static StockMarketAPI stockMarketAPI;
 
+    private InventoryManager inventoryManager;
+
     private static Economy econ;
     private MySQL mySQL;
     private Config config;
@@ -44,6 +47,8 @@ public class StockMarket extends JavaPlugin {
             stockMarketAPI = new StockMarketAPI(this);
             config = new Config(this);
             mySQL = new MySQL(this);
+
+            inventoryManager = new InventoryManager(this);
 
             registerCommands();
             registerListeners();
@@ -106,6 +111,8 @@ public class StockMarket extends JavaPlugin {
         econ = rsp.getProvider();
         return econ != null;
     }
+
+    public InventoryManager getInventoryManager() { return inventoryManager; }
 
     public Config getLocalConfig () { return config; }
 

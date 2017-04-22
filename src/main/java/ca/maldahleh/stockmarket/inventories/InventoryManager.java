@@ -3,6 +3,7 @@ package ca.maldahleh.stockmarket.inventories;
 import ca.maldahleh.stockmarket.StockMarket;
 import ca.maldahleh.stockmarket.inventories.information.ListInventory;
 import ca.maldahleh.stockmarket.inventories.information.TutorialInventory;
+import ca.maldahleh.stockmarket.inventories.leaderboards.PortfolioLeaderboardInventory;
 import ca.maldahleh.stockmarket.inventories.leaderboards.ProfitLeaderboardInventory;
 import ca.maldahleh.stockmarket.inventories.lookup.LookupInventory;
 import ca.maldahleh.stockmarket.inventories.portfolio.PortfolioHandler;
@@ -56,6 +57,10 @@ public class InventoryManager {
 
     public void openLookupInventory(Player p, String symbol) {
         new LookupInventory(stockMarket, p, symbol);
+    }
+
+    public void openPortfolioLeaderboard(Player p) {
+        new PortfolioLeaderboardInventory(stockMarket, p);
     }
 
     public void openProfitLeaderboard(Player p) {

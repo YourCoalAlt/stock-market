@@ -1,21 +1,17 @@
 package ca.maldahleh.stockmarket.utils;
 
 import ca.maldahleh.stockmarket.StockMarket;
-import ca.maldahleh.stockmarket.stocks.StockPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
-import yahoofinance.quotes.fx.FxQuote;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class SharedUtils {
     public static void displayBrokerInventory(final Player commandSender, boolean npcIsSpawned, String inventoryName) {
@@ -196,79 +192,6 @@ public class SharedUtils {
                         }
                     }
                 });
-            }
-        });
-    }
-
-    public static void displayPortfolioLeaderboard (final Player commandSender) {
-        final ArrayList<List<StockPlayer>> toUse = new ArrayList<>();
-        Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                toUse.add(0, StockMarket.getMySQL().getAllStockPlayers());
-                boolean toContinue = true;
-
-                if (toUse.get(0).isEmpty()) {
-                    commandSender.sendMessage(StockMarket.getInstance().getLocalConfig().noStockPlayers);
-                    toContinue = false;
-                }
-
-                if (toContinue) {
-                    final TreeMap<Double, String> transactionValue = new TreeMap<>(Collections.reverseOrder());
-                    for (int x = 0; x < toUse.get(0).size(); x++) {
-                        transactionValue.put(Double.valueOf(StockMarket.getStockMarketAPI().getPortfolioValue(toUse.get(0).get(x).getPlayerUUID())), toUse.get(0).get(x).getPlayerName());
-                    }
-
-                    int toDisplay = 44;
-
-                    if (transactionValue.size() < 44) {
-                        toDisplay = transactionValue.size() + 1;
-                    }
-                    final int finalToDisplay = toDisplay;
-                    Bukkit.getScheduler().runTask(StockMarket.getInstance(), new Runnable() {
-                        @Override
-                        public void run() {
-                            final Inventory leaderboardInventory = Bukkit.createInventory(null, 54, ChatColor.GOLD + "" + ChatColor.BOLD + "Stocks " + ChatColor.GRAY + "-" + ChatColor.GOLD + " Leaderboard");
-                            int tally = 0;
-                            for (Map.Entry<Double, String> e : transactionValue.entrySet()) {
-                                if (e.getKey().floatValue() != 0) {
-                                    OfflinePlayer p = Bukkit.getOfflinePlayer(e.getValue());
-                                    ItemStack skull = new ItemStack(397, 1, (short) 3);
-                                    SkullMeta meta = (SkullMeta) skull.getItemMeta();
-                                    meta.setDisplayName(ChatColor.GOLD + "#" + (tally + 1) + ChatColor.GRAY + " " + p.getName());
-                                    meta.setOwner(p.getName());
-
-                                    List<String> lore = new ArrayList<>();
-                                    lore.add(ChatColor.GREEN + "" + Utils.formatDecimal(e.getKey().floatValue()) + " " + ChatColor.GRAY + StockMarket.getInstance().getLocalConfig().serverCurrency);
-                                    meta.setLore(lore);
-                                    skull.setItemMeta(meta);
-                                    leaderboardInventory.setItem(tally, skull);
-                                }
-                                tally++;
-
-                                if (tally >= finalToDisplay) {
-                                    break;
-                                }
-                            }
-
-                            int playerPosition = 1;
-                            double playerPortfolioValue = 0;
-                            String commandSenderName = commandSender.getName();
-                            for (Map.Entry<Double, String> e : transactionValue.entrySet()) {
-                                if (e.getValue().equalsIgnoreCase(commandSenderName)) {
-                                    playerPortfolioValue = e.getKey();
-                                    break;
-                                }
-
-                                playerPosition++;
-                            }
-
-                            Utils.createItem(Material.ENCHANTED_BOOK, leaderboardInventory, 48, ChatColor.GRAY + "" + ChatColor.BOLD + "Your Position", ChatColor.GOLD + "" + playerPosition);
-                            Utils.createItem(Material.ENCHANTED_BOOK, leaderboardInventory, 50, ChatColor.GRAY + "" + ChatColor.BOLD + "Your Portfolio Value", ChatColor.GOLD + "" + Utils.formatDecimal((float) playerPortfolioValue));
-                            commandSender.openInventory(leaderboardInventory);
-                        }
-                    });
-                }
             }
         });
     }

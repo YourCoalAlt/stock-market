@@ -16,7 +16,8 @@ public class StockSaleEvent extends Event {
     private String initalPurchase;
     private String netOnTransaction;
 
-    public StockSaleEvent (Player p, String stockSymbol, int quantity, String stockValue, String brokerFees, String grandTotal, String initalPurchase, String netOnTransaction) {
+    public StockSaleEvent (Player p, String stockSymbol, int quantity, String stockValue, String brokerFees,
+                           String grandTotal, String initalPurchase, String netOnTransaction) {
         this.p = p;
         this.stockSymbol = stockSymbol;
         this.quantity = quantity;

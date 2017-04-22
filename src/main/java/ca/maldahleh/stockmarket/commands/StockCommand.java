@@ -228,6 +228,7 @@ public class StockCommand implements CommandExecutor {
         } else {
             commandSender.sendMessage(stockMarket.getLocalConfig().playerRequired);
         }
+
         return true;
     }
 }

@@ -7,8 +7,7 @@ import ca.maldahleh.stockmarket.config.Config;
 import ca.maldahleh.stockmarket.inventories.InventoryManager;
 import ca.maldahleh.stockmarket.listeners.BrokerListeners;
 import ca.maldahleh.stockmarket.listeners.PlayerListeners;
-import ca.maldahleh.stockmarket.stocks.StockPlayer;
-import ca.maldahleh.stockmarket.utils.MySQL;
+import ca.maldahleh.stockmarket.storage.SQL;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -30,7 +29,7 @@ public class StockMarket extends JavaPlugin {
     private InventoryManager inventoryManager;
 
     private static Economy econ;
-    private MySQL mySQL;
+    private SQL mySQL;
     private Config config;
 
     @Override
@@ -46,7 +45,7 @@ public class StockMarket extends JavaPlugin {
             stockMarket = this;
             stockMarketAPI = new StockMarketAPI(this);
             config = new Config(this);
-            mySQL = new MySQL(this);
+            mySQL = new SQL(this);
 
             inventoryManager = new InventoryManager(this);
 
@@ -116,7 +115,7 @@ public class StockMarket extends JavaPlugin {
 
     public Config getLocalConfig () { return config; }
 
-    public MySQL getMySQL() {
+    public SQL getMySQL() {
         return mySQL;
     }
 

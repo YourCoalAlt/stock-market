@@ -1,8 +1,8 @@
 package ca.maldahleh.stockmarket.api;
 
 import ca.maldahleh.stockmarket.StockMarket;
-import ca.maldahleh.stockmarket.stocks.StockPlayer;
 import ca.maldahleh.stockmarket.stocks.Stocks;
+import ca.maldahleh.stockmarket.utils.SortingUtils;
 import ca.maldahleh.stockmarket.utils.Utils;
 
 import yahoofinance.Stock;
@@ -137,7 +137,7 @@ public class StockMarketAPI {
                             .valueOf(getPortfolioValue(stockPlayer.getPlayerUUID(), null)));
                 }
 
-                sortedMap = Utils.sortByValue(unsortedMap);
+                sortedMap = SortingUtils.sortByValue(unsortedMap);
             }
 
             return sortedMap;

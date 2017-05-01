@@ -23,10 +23,4 @@ public class Utils {
         try { Integer.parseInt(string); } catch (NumberFormatException e) { return false; }
         return true;
     }
-
-    public static Map sortByValue(Map unsortedMap) {
-        Map sortedMap = new TreeMap(new ValueComparator(unsortedMap));
-        sortedMap.putAll(unsortedMap);
-        return sortedMap;
-    }
 }

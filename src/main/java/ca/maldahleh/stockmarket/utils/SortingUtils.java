@@ -2,8 +2,17 @@ package ca.maldahleh.stockmarket.utils;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class ValueComparator implements Comparator {
+public class SortingUtils {
+    public static Map sortByValue(Map unsortedMap) {
+        Map sortedMap = new TreeMap(new ValueComparator(unsortedMap));
+        sortedMap.putAll(unsortedMap);
+        return sortedMap;
+    }
+}
+
+class ValueComparator implements Comparator {
     private Map map;
 
     public ValueComparator(Map map) {

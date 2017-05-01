@@ -1,11 +1,10 @@
-package ca.maldahleh.stockmarket.utils;
+package ca.maldahleh.stockmarket.storage;
 
 import ca.maldahleh.stockmarket.StockMarket;
-import ca.maldahleh.stockmarket.handling.PlayerHandling;
 import ca.maldahleh.stockmarket.stocks.MergedStock;
-import ca.maldahleh.stockmarket.stocks.StockPlayer;
 import ca.maldahleh.stockmarket.stocks.Stocks;
 import ca.maldahleh.stockmarket.stocks.Transactions;
+import ca.maldahleh.stockmarket.utils.Utils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,49 +21,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class MySQL {
+public class SQL {
     private StockMarket stockMarket;
-    public HikariDataSource hikari;
+    private HikariDataSource pool;
 
-    public MySQL(StockMarket stockMarket) {
+    public SQL(StockMarket stockMarket) {
         this.stockMarket = stockMarket;
 
         connectDatabase();
         createTables();
     }
 
-    public void connectDatabase() {
-        if (stockMarket.getLocalConfig().mysqlEnabled) {
-            hikari = new HikariDataSource();
-            hikari.setMaximumPoolSize(50);
-            hikari.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+    private void connectDatabase() {
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setMaximumPoolSize(100);
 
-            hikari.addDataSourceProperty("serverName", stockMarket.getLocalConfig().mysqlIP);
-            hikari.addDataSourceProperty("port", stockMarket.getLocalConfig().mysqlPort);
-            hikari.addDataSourceProperty("databaseName", stockMarket.getLocalConfig().mysqlDatabase);
-            hikari.addDataSourceProperty("user", stockMarket.getLocalConfig().mysqlUsername);
-            hikari.addDataSourceProperty("password", stockMarket.getLocalConfig().mysqlPassword);
+        if (stockMarket.getLocalConfig().isMysqlEnabled()) {
+            hikariConfig.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+
+            hikariConfig.addDataSourceProperty("serverName", stockMarket.getLocalConfig().getMysqlIP());
+            hikariConfig.addDataSourceProperty("port", stockMarket.getLocalConfig().getMysqlPort());
+            hikariConfig.addDataSourceProperty("databaseName", stockMarket.getLocalConfig().getMysqlDatabase());
+            hikariConfig.addDataSourceProperty("user", stockMarket.getLocalConfig().getMysqlUsername());
+            hikariConfig.addDataSourceProperty("password", stockMarket.getLocalConfig().getMysqlPassword());
         } else {
-            HikariConfig config = new HikariConfig();
-            config.setPoolName("StockMarket-SQLitePool");
-            config.setDriverClassName("org.sqlite.JDBC");
-            config.setJdbcUrl("jdbc:sqlite:plugins/StockMarket/StockMarket.db");
-            config.setConnectionTestQuery("SELECT 1");
-            config.setMaxLifetime(60000);
-            config.setIdleTimeout(45000);
-            config.setMaximumPoolSize(100);
-            hikari = new HikariDataSource(config);
+            hikariConfig.setDriverClassName("org.sqlite.JDBC");
+            hikariConfig.setJdbcUrl("jdbc:sqlite:plugins/StockMarket/StockMarket.db");
         }
+
+        pool = new HikariDataSource(hikariConfig);
     }
 
-    public void createTables() {
+    private void createTables() {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
-            if (stockMarket.getLocalConfig().mysqlEnabled) {
+            if (stockMarket.getLocalConfig().isMysqlEnabled()) {
                 String statement = "CREATE TABLE IF NOT EXISTS sm_players(player_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, player_uuid VARCHAR(36), player_name VARCHAR(16))";
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
@@ -115,7 +110,7 @@ public class MySQL {
 
         try {
             StockPlayer stockPlayer = PlayerHandling.getPlayer(p);
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             if (!(stockPlayer == null)) {
                 if (stockMarket.getLocalConfig().mysqlEnabled) {
@@ -172,7 +167,7 @@ public class MySQL {
 
         try {
             StockPlayer stockPlayer = PlayerHandling.getPlayer(p);
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             if (stockPlayer == null) {
                 return;
@@ -222,7 +217,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = StockMarket.getMySQL().hikari.getConnection();
+            connection = StockMarket.getMySQL().pool.getConnection();
 
             StockPlayer stockPlayer = PlayerHandling.getPlayer(p);
             if (stockPlayer != null) {
@@ -271,7 +266,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             StockPlayer stockPlayer = PlayerHandling.getPlayer(pName);
             if (stockPlayer != null) {
@@ -319,7 +314,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             StockPlayer stockPlayer = PlayerHandling.getPlayer(pName);
             if (stockPlayer != null) {
@@ -375,7 +370,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             StockPlayer stockPlayer = PlayerHandling.lookupPlayerUUID(pUUID);
             if (stockPlayer != null) {
@@ -423,7 +418,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
                 preparedStatement = connection.prepareStatement("SELECT * FROM sm_players ORDER BY player_id");
                 resultSet = preparedStatement.executeQuery();
 
@@ -466,7 +461,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             StockPlayer stockPlayer = PlayerHandling.getPlayer(pName);
             if (stockPlayer != null) {
@@ -514,7 +509,7 @@ public class MySQL {
         ResultSet resultSet = null;
 
         try {
-            connection = hikari.getConnection();
+            connection = pool.getConnection();
 
             preparedStatement = connection.prepareStatement("SELECT tran_id, tran_type, tran_date, player_id, is_converted, inital_price_single, inital_currency, symbol, symbol_price, quantity, stock_value, broker_fees, total_price, earnings FROM sm_transactions WHERE symbol = ? ORDER BY tran_date");
             preparedStatement.setString(1, stockSymbol.toUpperCase());
@@ -556,7 +551,7 @@ public class MySQL {
         PreparedStatement preparedStatement = null;
 
         try {
-            connection = StockMarket.getMySQL().hikari.getConnection();
+            connection = pool.getConnection();
 
             preparedStatement = connection.prepareStatement("UPDATE sm_stocks SET quantity = ?, stock_value = ?, total_price = ? WHERE stocks_id = ?");
             preparedStatement.setInt(1, stocks.getQuantity());
@@ -588,7 +583,7 @@ public class MySQL {
         PreparedStatement preparedStatement = null;
 
         try {
-            connection = StockMarket.getMySQL().hikari.getConnection();
+            connection = pool.getConnection();
 
             preparedStatement = connection.prepareStatement("DELETE FROM sm_stocks WHERE stocks_id = ?");
             preparedStatement.setInt(1, stocks.getID());

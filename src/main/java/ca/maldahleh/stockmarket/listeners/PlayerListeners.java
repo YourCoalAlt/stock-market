@@ -1,7 +1,6 @@
 package ca.maldahleh.stockmarket.listeners;
 
 import ca.maldahleh.stockmarket.StockMarket;
-import ca.maldahleh.stockmarket.handling.PlayerHandling;
 import ca.maldahleh.stockmarket.utils.SharedUtils;
 
 import org.bukkit.Bukkit;

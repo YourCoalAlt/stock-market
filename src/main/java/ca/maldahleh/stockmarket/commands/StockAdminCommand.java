@@ -59,10 +59,6 @@ public class StockAdminCommand implements CommandExecutor {
                     stockMarket.getLocalConfig().loadConfiguration();
                     commandSender.sendMessage(stockMarket.getLocalConfig().getConfigReloaded());
                     return true;
-                } else if (strings[0].equalsIgnoreCase("tables")) {
-                    stockMarket.getMySQL().wipeTables();
-                    commandSender.sendMessage(stockMarket.getLocalConfig().getPurgeTables());
-                    return true;
                 }
             }
 

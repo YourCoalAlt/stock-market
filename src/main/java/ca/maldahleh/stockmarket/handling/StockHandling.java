@@ -23,198 +23,144 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class StockHandling {
+    private StockMarket stockMarket;
 
-    public static void buyStock(final Player p, final String stockSymbol, final int quantity) {
-        try {
-            final Stock[] stock = new Stock[1];
-            final boolean[] toReturn = new boolean[1];
+    public StockHandling(StockMarket stockMarket) { this.stockMarket = stockMarket; }
 
-            Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        stock[0] = YahooFinance.get(stockSymbol);
-                    } catch (IOException | NumberFormatException | NullPointerException e) {
-                        p.sendMessage(StockMarket.getInstance().getLocalConfig().invalidStockMessage);
-                        toReturn[0] = true;
-                    }
+    public void buyStock(final Player p, final String stockSymbol, final int quantity) {
+        Bukkit.getScheduler().runTaskAsynchronously(stockMarket, () -> {
+            Stock stock;
+            try {
+                stock = YahooFinance.get(stockSymbol);
+            } catch (IOException | NumberFormatException | NullPointerException e) {
+                p.sendMessage(StockMarket.getInstance().getLocalConfig().getInvalidStockMessage());
+                return;
+            }
 
-                    try {
-                        double doubleValue = stock[0].getQuote().getPrice().doubleValue();
-                    } catch (NullPointerException e) {
-                        p.sendMessage(StockMarket.getInstance().getLocalConfig().errorOccured);
-                        toReturn[0] = true;
-                    }
+            if (stock.getQuote().getPrice().doubleValue() <= 0) {
+                p.sendMessage(StockMarket.getInstance().getLocalConfig().getInvalidPrice()
+                        .replace("<symbol>", stockSymbol.toUpperCase()));
+                return;
+            }
 
-                    if (stock[0].getQuote().getPrice().doubleValue() == 0) {
-                        p.sendMessage(StockMarket.getInstance().getLocalConfig().invalidStockMessage);
-                        toReturn[0] = true;
-                    }
+            if (StockMarket.getInstance().getLocalConfig().isPennyStockCheck()) {
+                if (stock.getQuote().getPrice().doubleValue() <= StockMarket.getInstance().getLocalConfig().getPennyStockMinimum()) {
+                    p.sendMessage(StockMarket.getInstance().getLocalConfig().getPennyStockNotMet());
+                    return;
+                }
+            }
 
-                    if (StockMarket.getInstance().getLocalConfig().pennyStockCheck) {
-                        if (stock[0].getQuote().getPrice().doubleValue() <= StockMarket.getInstance().getLocalConfig().pennyStockMinimum) {
-                            p.sendMessage(StockMarket.getInstance().getLocalConfig().pennyStockNotMet);
-                            toReturn[0] = true;
+            if (StockMarket.getInstance().getLocalConfig().isDisableTradingWhenClosed()) {
+                boolean result;
+                try {
+                    result = isMarketOpen(stock.getSymbol().toUpperCase());
+                } catch (Exception e) {
+                    result = false;
+                }
+
+                if (!result) {
+                    p.sendMessage(StockMarket.getInstance().getLocalConfig().getNoTradingWhenMarketIsClosed());
+                    return;
+                }
+            }
+
+            Bukkit.getScheduler().runTask(StockMarket.getInstance(), () -> {
+                if (StockMarket.getInstance().getLocalConfig().isBlockNonUSDSales()
+                        && !stock.getCurrency().equalsIgnoreCase("USD")) {
+                    p.sendMessage(StockMarket.getInstance().getLocalConfig().getNoPurchaseNonUSD());
+                    return;
+                }
+
+                Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), () -> {
+                    final double stockPrice = Double.valueOf(Utils.formatDecimal(stock.getQuote().getPrice().floatValue()));
+                    double preStockConverted = 0;
+                    double preStockValue = 0;
+                    double preStockValueConverted = 0;
+                    double singleStockPrice;
+
+                    if (StockMarket.getInstance().getLocalConfig().isConvertToUSD() &&
+                            !stock.getCurrency().equalsIgnoreCase("USD")) {
+                        final FxQuote forexStock;
+                        try {
+                            forexStock = YahooFinance.getFx(stock.getCurrency().toUpperCase() + "USD=X");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return;
                         }
+
+                        preStockConverted = stockPrice * forexStock.getPrice().doubleValue()
+                                * StockMarket.getInstance().getLocalConfig().getMultiplier();
+                        preStockValueConverted = preStockConverted * quantity;
+                    } else {
+
                     }
 
-                    if (!toReturn[0]) {
-                        toReturn[0] = false;
-                        if (StockMarket.getInstance().getLocalConfig().disableTradingWhenClosed) {
-                            boolean result;
-                            try {
-                                result = isMarketOpen(stock[0].getSymbol().toUpperCase());
-                            } catch (Exception e) {
-                                result = false;
-                            }
+                    if (preStockValueConverted[0] != 0) {
+                        preStockValue[0] = preStockValueConverted[0];
+                    } else {
+                        multipliedValue = stockPrice * StockMarket.getInstance().getLocalConfig().multiplier;
+                        preStockValue[0] = Double.valueOf(Utils.formatDecimal(((float) (multipliedValue * quantity))));
+                    }
 
-                            if (!result) {
-                                toReturn[0] = true;
-                                p.sendMessage(StockMarket.getInstance().getLocalConfig().noTradingWhenMarketIsClosed);
-                            }
+                    if (preStockConverted[0] != 0) {
+                        singleStockPrice[0] = Double.valueOf(Utils.formatDecimal((float) preStockConverted[0]));
+                    } else {
+                        singleStockPrice[0] = Double.valueOf(Utils.formatDecimal((float) multipliedValue));
+                    }
+
+                    final double brokerFees = Double.valueOf(Utils.formatDecimal((float) ((StockMarket.getInstance().getLocalConfig().brokerFeePercent * preStockValue[0]) + StockMarket.getInstance().getLocalConfig().brokerFeeFlat)));
+                    final double grandTotal = Double.valueOf(Utils.formatDecimal((float) (preStockValue[0] + brokerFees)));
+
+                    double playerBalance = StockMarket.getEcon().getBalance(p);
+
+                    if (playerBalance < grandTotal) {
+                        String inital = StockMarket.getInstance().getLocalConfig().getNotEnoughMoney()
+                                .replace("<quantity>", String.valueOf(quantity));
+                        String modifiedSymbol = inital.replace("<symbol>", stockSymbol.toUpperCase());
+                        String modifiedGrandTotal = modifiedSymbol
+                                .replace("<total>", String.valueOf(Utils.formatDecimal(grandTotal)));
+                        p.sendMessage(modifiedGrandTotal);
+                    } else {
+                        StockMarket.getEcon().withdrawPlayer(p, grandTotal);
+                        if (!StockMarket.getInstance().getLocalConfig().feesAccount.equals("")) {
+                            StockMarket.getEcon().depositPlayer(StockMarket.getInstance().getLocalConfig().feesAccount, brokerFees);
                         }
 
-                        Bukkit.getScheduler().runTask(StockMarket.getInstance(), new Runnable() {
+                        if (!StockMarket.getInstance().getLocalConfig().stockAccount.equals("")) {
+                            StockMarket.getEcon().depositPlayer(StockMarket.getInstance().getLocalConfig().stockAccount, preStockValue[0]);
+                        }
+
+                        List<String> boughtMessage = StockMarket.getInstance().getLocalConfig().boughtStock;
+                        SimpleDateFormat dateFormat = new SimpleDateFormat();
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                        String timeStamp;
+                        timeStamp = dateFormat.format(new Date());
+
+                        for (String toSend : boughtMessage) {
+                            String a = toSend.replace("<date>", timeStamp + " UTC");
+                            String b = a.replace("<quantity>", String.valueOf(quantity));
+                            String c = b.replace("<symbol>", stockSymbol.toUpperCase());
+                            String d = c.replace("<company>", stock[0].getName());
+                            String e = d.replace("<stock-value>", "(" + quantity + " * " + String.valueOf(Utils.formatDecimal((float) singleStockPrice[0])) + ") " + String.valueOf(Utils.formatDecimal((float) preStockValue[0])) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
+                            String f = e.replace("<broker-fees>", String.valueOf(Utils.formatDecimal((float) brokerFees)) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
+                            String g = f.replace("<total>", String.valueOf(Utils.formatDecimal((float) grandTotal)) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
+                            p.sendMessage(g);
+                        }
+
+                        Bukkit.getPluginManager().callEvent(new StockPurchaseEvent(p, stockSymbol, quantity, String.valueOf(Utils.formatDecimal((float) preStockValue[0])), String.valueOf(Utils.formatDecimal((float) brokerFees)), String.valueOf(Utils.formatDecimal((float) grandTotal))));
+
+                        Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
                             @Override
                             public void run() {
-                                if (!toReturn[0]) {
-                                    toReturn[0] = false;
-                                    if (StockMarket.getInstance().getLocalConfig().blockNonUSDSales) {
-                                        if (!stock[0].getCurrency().equalsIgnoreCase("USD")) {
-                                            p.sendMessage(StockMarket.getInstance().getLocalConfig().noPurchaseNonUSD);
-                                            toReturn[0] = true;
-                                        }
-                                    }
-
-                                    if (StockMarket.getInstance().getLocalConfig().preventSaleOfZeroValue) {
-                                        if (Double.valueOf(stock[0].getQuote().getPrice().toString()) <= 0) {
-                                            p.sendMessage(StockMarket.getInstance().getLocalConfig().invalidPrice.replace("<symbol>", stock[0].getSymbol().toUpperCase()));
-                                            toReturn[0] = true;
-                                        }
-                                    }
-
-                                    if (!toReturn[0]) {
-                                        final double stockPrice = Double.valueOf(Utils.formatDecimal(stock[0].getQuote().getPrice().floatValue()));
-                                        final double[] preStockConverted = {0};
-                                        final double[] preStockValue = {0};
-                                        final double[] preStockValueConverted = {0};
-                                        final boolean[] isConverted = {false};
-                                        final double[] singleStockPrice = new double[1];
-
-                                        Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (StockMarket.getInstance().getLocalConfig().convertToUSD) {
-                                                    if (!stock[0].getCurrency().equalsIgnoreCase("USD")) {
-                                                        final FxQuote[] forexStock = new FxQuote[1];
-
-                                                        try {
-                                                            forexStock[0] = YahooFinance.getFx(stock[0].getCurrency().toUpperCase() + "USD=X");
-                                                        } catch (IOException ignored) {
-                                                        }
-
-                                                        preStockConverted[0] = (stockPrice * forexStock[0].getPrice().doubleValue());
-
-                                                        if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                                            preStockConverted[0] = preStockConverted[0] * StockMarket.getInstance().getLocalConfig().multiplier;
-                                                        }
-
-                                                        preStockValueConverted[0] = (preStockConverted[0] * quantity);
-                                                        isConverted[0] = true;
-
-                                                    }
-                                                }
-
-                                                Bukkit.getScheduler().runTask(StockMarket.getInstance(), new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        double multipliedValue = 0;
-                                                        if (preStockValueConverted[0] != 0) {
-                                                            preStockValue[0] = preStockValueConverted[0];
-                                                        } else {
-                                                            if (StockMarket.getInstance().getLocalConfig().multiplier != 0) {
-                                                                multipliedValue = stockPrice * StockMarket.getInstance().getLocalConfig().multiplier;
-                                                                preStockValue[0] = Double.valueOf(Utils.formatDecimal(((float) (multipliedValue * quantity))));
-                                                            } else {
-                                                                preStockValue[0] = Double.valueOf(Utils.formatDecimal(((float) (stockPrice * quantity))));
-                                                            }
-                                                        }
-
-                                                        if (preStockConverted[0] != 0) {
-                                                            singleStockPrice[0] = Double.valueOf(Utils.formatDecimal((float) preStockConverted[0]));
-                                                        } else {
-                                                            if (multipliedValue != 0) {
-                                                                singleStockPrice[0] = Double.valueOf(Utils.formatDecimal((float) multipliedValue));
-                                                            } else {
-                                                                singleStockPrice[0] = Double.valueOf(Utils.formatDecimal((float) stockPrice));
-                                                            }
-                                                        }
-
-                                                        final double brokerFees = Double.valueOf(Utils.formatDecimal((float) ((StockMarket.getInstance().getLocalConfig().brokerFeePercent * preStockValue[0]) + StockMarket.getInstance().getLocalConfig().brokerFeeFlat)));
-                                                        final double grandTotal = Double.valueOf(Utils.formatDecimal((float) (preStockValue[0] + brokerFees)));
-
-                                                        double playerBalance = StockMarket.getEcon().getBalance(p);
-                                                        boolean toReturn = false;
-
-                                                        if (playerBalance < grandTotal) {
-                                                            String inital = StockMarket.getInstance().getLocalConfig().notEnoughMoney.replace("<quantity>", String.valueOf(quantity));
-                                                            String modifiedSymbol = inital.replace("<symbol>", stockSymbol.toUpperCase());
-                                                            String modifiedGrandTotal = modifiedSymbol.replace("<total>", String.valueOf(Utils.formatDecimal((float) grandTotal)));
-                                                            p.sendMessage(modifiedGrandTotal);
-                                                            toReturn = true;
-                                                        }
-
-                                                        if (!toReturn) {
-                                                            StockMarket.getEcon().withdrawPlayer(p, grandTotal);
-                                                            if (!StockMarket.getInstance().getLocalConfig().feesAccount.equals("")) {
-                                                                StockMarket.getEcon().depositPlayer(StockMarket.getInstance().getLocalConfig().feesAccount, brokerFees);
-                                                            }
-
-                                                            if (!StockMarket.getInstance().getLocalConfig().stockAccount.equals("")) {
-                                                                StockMarket.getEcon().depositPlayer(StockMarket.getInstance().getLocalConfig().stockAccount, preStockValue[0]);
-                                                            }
-                                                            List<String> boughtMessage = StockMarket.getInstance().getLocalConfig().boughtStock;
-                                                            SimpleDateFormat dateFormat = new SimpleDateFormat();
-                                                            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                                                            String timeStamp;
-                                                            timeStamp = dateFormat.format(new Date());
-
-                                                            for (String toSend : boughtMessage) {
-                                                                String a = toSend.replace("<date>", timeStamp + " UTC");
-                                                                String b = a.replace("<quantity>", String.valueOf(quantity));
-                                                                String c = b.replace("<symbol>", stockSymbol.toUpperCase());
-                                                                String d = c.replace("<company>", stock[0].getName());
-                                                                String e = d.replace("<stock-value>", "(" + quantity + " * " + String.valueOf(Utils.formatDecimal((float) singleStockPrice[0])) + ") " + String.valueOf(Utils.formatDecimal((float) preStockValue[0])) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
-                                                                String f = e.replace("<broker-fees>", String.valueOf(Utils.formatDecimal((float) brokerFees)) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
-                                                                String g = f.replace("<total>", String.valueOf(Utils.formatDecimal((float) grandTotal)) + " " + StockMarket.getInstance().getLocalConfig().serverCurrency);
-                                                                p.sendMessage(g);
-                                                            }
-
-                                                            Bukkit.getPluginManager().callEvent(new StockPurchaseEvent(p, stockSymbol, quantity, String.valueOf(Utils.formatDecimal((float) preStockValue[0])), String.valueOf(Utils.formatDecimal((float) brokerFees)), String.valueOf(Utils.formatDecimal((float) grandTotal))));
-
-                                                            Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    StockMarket.getMySQL().processPurchase(p, stockSymbol.toUpperCase(), isConverted[0], stockPrice, stock[0].getCurrency(), Double.parseDouble(Utils.formatDecimal((float) singleStockPrice[0])), quantity, preStockValue[0], brokerFees, grandTotal);
-                                                                }
-                                                            });
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                }
+                                StockMarket.getMySQL().processPurchase(p, stockSymbol.toUpperCase(), isConverted[0], stockPrice, stock[0].getCurrency(), Double.parseDouble(Utils.formatDecimal((float) singleStockPrice[0])), quantity, preStockValue[0], brokerFees, grandTotal);
                             }
                         });
                     }
-                }
+                });
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-            p.sendMessage(StockMarket.getInstance().getLocalConfig().errorOccured);
-        }
+        });
+
     }
 
     public static void sellStock(final Player p, final int quantityToSell, final String stockSymbol) {
@@ -486,34 +432,34 @@ public class StockHandling {
 
     public static boolean isMarketOpen(String symbolUpperCase) throws Exception {
         try {
-            String requestXml = "<?xml version='1.0' encoding='utf−8'?><request devtype='Apple_OSX' deployver='APPLE_DASHBOARD_1_0' app='YGoAppleStocksWidget' appver='unknown' api='finance' apiver='1.0.1' acknotification='0000'><query id='0' timestamp='`date +%s000`' type='getquotes'><list><symbol>" + symbolUpperCase +"</symbol></list></query></request>";
+            String requestXml = "<?xml version='1.0' encoding='utf−8'?><request devtype='Apple_OSX' deployver='APPLE_DASHBOARD_1_0' app='YGoAppleStocksWidget' appver='unknown' api='finance' apiver='1.0.1' acknotification='0000'><query id='0' timestamp='`date +%s000`' type='getquotes'><list><symbol>" + symbolUpperCase + "</symbol></list></query></request>";
             URL url = new URL("http://wu-quotes.apple.com/dgw?imei=42&apptype=finance");
             URLConnection con = url.openConnection();
-            con.setDoInput (true);
-            con.setDoOutput (true);
-            con.setConnectTimeout (20000);
-            con.setReadTimeout (20000);
-            con.setUseCaches (false);
-            con.setDefaultUseCaches (false);
-            con.setRequestProperty ("Content-Type", "text/xml");
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setConnectTimeout(20000);
+            con.setReadTimeout(20000);
+            con.setUseCaches(false);
+            con.setDefaultUseCaches(false);
+            con.setRequestProperty("Content-Type", "text/xml");
             OutputStreamWriter writer = new OutputStreamWriter(con.getOutputStream());
             writer.write(requestXml);
             writer.flush();
             writer.close();
 
-            InputStreamReader reader = new InputStreamReader( con.getInputStream() );
+            InputStreamReader reader = new InputStreamReader(con.getInputStream());
             StringBuilder buf = new StringBuilder();
             char[] cbuf = new char[2048];
             int num;
-            while (-1 != (num=reader.read(cbuf))) {
+            while (-1 != (num = reader.read(cbuf))) {
                 buf.append(cbuf, 0, num);
             }
             String result = buf.toString();
-            String [] initalSplit = result.split("<status>");
-            String [] finalSplit = initalSplit[1].split("</status>");
+            String[] initalSplit = result.split("<status>");
+            String[] finalSplit = initalSplit[1].split("</status>");
 
             return finalSplit[0].equalsIgnoreCase("1");
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             t.printStackTrace();
             return false;
         }

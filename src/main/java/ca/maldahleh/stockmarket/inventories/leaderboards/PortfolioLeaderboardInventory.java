@@ -4,6 +4,7 @@ import ca.maldahleh.stockmarket.StockMarket;
 import ca.maldahleh.stockmarket.stocks.StockPlayer;
 import ca.maldahleh.stockmarket.utils.ItemStackBuilder;
 import ca.maldahleh.stockmarket.utils.Utils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

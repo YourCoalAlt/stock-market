@@ -29,26 +29,4 @@ public class Utils {
         sortedMap.putAll(unsortedMap);
         return sortedMap;
     }
-
-    public static void createItem (Material material, Inventory inventoryName, int itemSlot, String displayName, String lore) {
-        ItemStack itemCreated = new ItemStack(material);
-        ItemMeta itemMeta = itemCreated.getItemMeta();
-        itemMeta.setDisplayName(displayName);
-        ArrayList<String> loreArray = new ArrayList<>();
-        loreArray.add(lore);
-        itemMeta.setLore(loreArray);
-        itemCreated.setItemMeta(itemMeta);
-
-        inventoryName.setItem(itemSlot, itemCreated);
-    }
-
-    public static void createItem (Material material, Inventory inventoryName, int itemSlot, String displayName, List<String> lore) {
-        ItemStack itemCreated = new ItemStack(material);
-        ItemMeta itemMeta = itemCreated.getItemMeta();
-        itemMeta.setDisplayName(displayName);
-        itemMeta.setLore(lore);
-        itemCreated.setItemMeta(itemMeta);
-
-        inventoryName.setItem(itemSlot, itemCreated);
-    }
 }

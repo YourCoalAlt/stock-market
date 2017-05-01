@@ -69,11 +69,11 @@ public class MySQL {
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
 
-                statement = "CREATE TABLE IF NOT EXISTS sm_stocks(stocks_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, player_id INTEGER, stock_date DATETIME, is_converted BOOLEAN, inital_price_single DOUBLE, inital_currency VARCHAR(3), symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE)";
+                statement = "CREATE TABLE IF NOT EXISTS sm_stocks(stocks_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, player_id INTEGER, stock_date DATETIME, symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE)";
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
 
-                statement = "CREATE TABLE IF NOT EXISTS sm_transactions(tran_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, tran_type ENUM('purchase', 'sale'), tran_date DATETIME, player_id INTEGER, is_converted BOOLEAN, inital_price_single DOUBLE, inital_currency VARCHAR(3), symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE, earnings DOUBLE)";
+                statement = "CREATE TABLE IF NOT EXISTS sm_transactions(tran_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, tran_type ENUM('purchase', 'sale'), tran_date DATETIME, player_id INTEGER, symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE, earnings DOUBLE)";
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
             } else {
@@ -81,7 +81,7 @@ public class MySQL {
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
 
-                statement = "CREATE TABLE IF NOT EXISTS sm_stocks(stocks_id INTEGER NOT NULL, player_id INTEGER, stock_date DATETIME, is_converted BOOLEAN, inital_price_single DOUBLE, inital_currency VARCHAR(3), symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE, PRIMARY KEY (stocks_id))";
+                statement = "CREATE TABLE IF NOT EXISTS sm_stocks(stocks_id INTEGER NOT NULL, player_id INTEGER, stock_date DATETIME, symbol VARCHAR(12), symbol_price DOUBLE, quantity INTEGER, stock_value DOUBLE, broker_fees DOUBLE, total_price DOUBLE, PRIMARY KEY (stocks_id))";
                 preparedStatement = connection.prepareStatement(statement);
                 preparedStatement.execute();
 
@@ -109,86 +109,7 @@ public class MySQL {
         }
     }
 
-    public void wipeTables() {
-        Bukkit.getScheduler().runTaskAsynchronously(StockMarket.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                if (stockMarket.getLocalConfig().mysqlEnabled) {
-                Connection connection = null;
-                PreparedStatement preparedStatement = null;
-
-                try {
-                    String statement = "TRUNCATE TABLE sm_players";
-                    connection = hikari.getConnection();
-                    preparedStatement = connection.prepareStatement(statement);
-                    preparedStatement.execute();
-
-                    statement = "TRUNCATE TABLE sm_stocks";
-                    preparedStatement = connection.prepareStatement(statement);
-                    preparedStatement.execute();
-
-                    statement = "TRUNCATE TABLE sm_transactions";
-                    preparedStatement = connection.prepareStatement(statement);
-                    preparedStatement.execute();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } finally {
-                    if (preparedStatement != null) {
-                        try {
-                            preparedStatement.close();
-                        } catch (SQLException ignored) {
-                        }
-                    }
-
-                    if (connection != null) {
-                        try {
-                            connection.close();
-                        } catch (SQLException ignored) {
-                        }
-                    }
-                }
-                } else {
-                    Connection connection = null;
-                    PreparedStatement preparedStatement = null;
-
-                    try {
-                        String statement = "DROP TABLE sm_players";
-                        connection = hikari.getConnection();
-                        preparedStatement = connection.prepareStatement(statement);
-                        preparedStatement.execute();
-
-                        statement = "DROP TABLE sm_stocks";
-                        preparedStatement = connection.prepareStatement(statement);
-                        preparedStatement.execute();
-
-                        statement = "DROP TABLE sm_transactions";
-                        preparedStatement = connection.prepareStatement(statement);
-                        preparedStatement.execute();
-                        createTables();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } finally {
-                        if (preparedStatement != null) {
-                            try {
-                                preparedStatement.close();
-                            } catch (SQLException ignored) {
-                            }
-                        }
-
-                        if (connection != null) {
-                            try {
-                                connection.close();
-                            } catch (SQLException ignored) {
-                            }
-                        }
-                    }
-
-                }
-            }
-        });
-    }
-
-    public void processPurchase(final Player p, final String symbol, final boolean isConverted, final double initalSingle, final String initalCurrency, final double singlePrice, final int amount, final double stockValue, final double brokerFees, final double totalPrice) {
+    public void processPurchase(final Player p, final String symbol, final double singlePrice, final int amount, final double stockValue, final double brokerFees, final double totalPrice) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
 
@@ -196,45 +117,33 @@ public class MySQL {
             StockPlayer stockPlayer = PlayerHandling.getPlayer(p);
             connection = hikari.getConnection();
 
-            boolean continueQuery = true;
-
-            if (stockPlayer == null) {
-                continueQuery = false;
-            }
-
-            if (continueQuery) {
+            if (!(stockPlayer == null)) {
                 if (stockMarket.getLocalConfig().mysqlEnabled) {
-                    preparedStatement = connection.prepareStatement("INSERT INTO sm_transactions (tran_type, tran_date, player_id, is_converted, inital_price_single, inital_currency, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES ('purchase', UTC_TIMESTAMP(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = connection.prepareStatement("INSERT INTO sm_transactions (tran_type, tran_date, player_id, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES ('purchase', UTC_TIMESTAMP(), ?, ?, ?, ?, ?, ?, ?)");
                 } else {
-                    preparedStatement = connection.prepareStatement("INSERT INTO sm_transactions (tran_type, tran_date, player_id, is_converted, inital_price_single, inital_currency, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES ('purchase', date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = connection.prepareStatement("INSERT INTO sm_transactions (tran_type, tran_date, player_id, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES ('purchase', date('now'), ?, ?, ?, ?, ?, ?, ?)");
                 }
                 preparedStatement.setInt(1, stockPlayer.getPlayerID());
-                preparedStatement.setBoolean(2, isConverted);
-                preparedStatement.setDouble(3, initalSingle);
-                preparedStatement.setString(4, initalCurrency);
-                preparedStatement.setString(5, symbol.toUpperCase());
-                preparedStatement.setDouble(6, Double.valueOf(Utils.formatDecimal((float) singlePrice)));
-                preparedStatement.setInt(7, amount);
-                preparedStatement.setDouble(8, Double.valueOf(Utils.formatDecimal((float) stockValue)));
-                preparedStatement.setDouble(9, Double.valueOf(Utils.formatDecimal((float) brokerFees)));
-                preparedStatement.setDouble(10, Double.valueOf(Utils.formatDecimal((float) totalPrice)));
+                preparedStatement.setString(2, symbol.toUpperCase());
+                preparedStatement.setDouble(3, Double.valueOf(Utils.formatDecimal((float) singlePrice)));
+                preparedStatement.setInt(4, amount);
+                preparedStatement.setDouble(5, Double.valueOf(Utils.formatDecimal((float) stockValue)));
+                preparedStatement.setDouble(6, Double.valueOf(Utils.formatDecimal((float) brokerFees)));
+                preparedStatement.setDouble(7, Double.valueOf(Utils.formatDecimal((float) totalPrice)));
                 preparedStatement.executeUpdate();
 
                 if (stockMarket.getLocalConfig().mysqlEnabled) {
-                    preparedStatement = connection.prepareStatement("INSERT INTO sm_stocks (player_id, stock_date, is_converted, inital_price_single, inital_currency, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES (?, UTC_TIMESTAMP(), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = connection.prepareStatement("INSERT INTO sm_stocks (player_id, stock_date, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES (?, UTC_TIMESTAMP(), ?, ?, ?, ?, ?, ?)");
                 } else {
-                    preparedStatement = connection.prepareStatement("INSERT INTO sm_stocks (player_id, stock_date, is_converted, inital_price_single, inital_currency, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES (?, date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    preparedStatement = connection.prepareStatement("INSERT INTO sm_stocks (player_id, stock_date, symbol, symbol_price, quantity, stock_value, broker_fees, total_price) VALUES (?, date('now'), ?, ?, ?, ?, ?, ?)");
                 }
                 preparedStatement.setInt(1, stockPlayer.getPlayerID());
-                preparedStatement.setBoolean(2, isConverted);
-                preparedStatement.setDouble(3, initalSingle);
-                preparedStatement.setString(4, initalCurrency);
-                preparedStatement.setString(5, symbol.toUpperCase());
-                preparedStatement.setDouble(6, Double.valueOf(Utils.formatDecimal((float) singlePrice)));
-                preparedStatement.setInt(7, amount);
-                preparedStatement.setDouble(8, Double.valueOf(Utils.formatDecimal((float) stockValue)));
-                preparedStatement.setDouble(9, Double.valueOf(Utils.formatDecimal((float) brokerFees)));
-                preparedStatement.setDouble(10, Double.valueOf(Utils.formatDecimal((float) totalPrice)));
+                preparedStatement.setString(2, symbol.toUpperCase());
+                preparedStatement.setDouble(3, Double.valueOf(Utils.formatDecimal((float) singlePrice)));
+                preparedStatement.setInt(4, amount);
+                preparedStatement.setDouble(5, Double.valueOf(Utils.formatDecimal((float) stockValue)));
+                preparedStatement.setDouble(6, Double.valueOf(Utils.formatDecimal((float) brokerFees)));
+                preparedStatement.setDouble(7, Double.valueOf(Utils.formatDecimal((float) totalPrice)));
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {

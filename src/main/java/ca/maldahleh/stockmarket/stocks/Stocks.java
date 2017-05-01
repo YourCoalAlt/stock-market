@@ -37,12 +37,6 @@ public class Stocks {
 
     public Date getDate () { return stocksDate; }
 
-    public boolean isConverted () { return  isConverted; }
-
-    public double getInitialSinglePrice () { return initialSinglePrice; }
-
-    public String getInitalCurrency () { return  initalCurrency; }
-
     public String getSymbol () {
         return symbol;
     }

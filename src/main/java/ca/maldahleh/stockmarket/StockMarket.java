@@ -17,7 +17,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class StockMarket extends JavaPlugin {
-    public static HashMap<UUID, StockPlayer> cachedPlayers = new HashMap<>();
     //public static HashMap<UUID, PortfolioObject> portfolioMap = new HashMap<>();
     //public static HashMap<UUID, HistoryObject> transactionMap = new HashMap<>();
     //public static HashMap<UUID, StockHistoryObject> historyMap = new HashMap<>();

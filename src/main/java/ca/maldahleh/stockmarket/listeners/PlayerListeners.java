@@ -3,7 +3,6 @@ package ca.maldahleh.stockmarket.listeners;
 import ca.maldahleh.stockmarket.StockMarket;
 import ca.maldahleh.stockmarket.utils.SharedUtils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerListeners implements Listener {
@@ -59,20 +57,8 @@ public class PlayerListeners implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onJoin (final PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(stockMarket, new Runnable() {
-            @Override
-            public void run() {
-                PlayerHandling.cacheProvidedPlayer(e.getPlayer());
-            }
-        });
-    }
-
     @EventHandler(priority = EventPriority.NORMAL)
     public void onQuit (PlayerQuitEvent e) {
-        StockMarket.cachedPlayers.remove(e.getPlayer().getUniqueId());
-
         if (StockMarket.portfolioMap.containsKey(e.getPlayer().getUniqueId())) {
             StockMarket.portfolioMap.remove(e.getPlayer().getUniqueId());
         }
